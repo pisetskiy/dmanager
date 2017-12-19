@@ -2,6 +2,7 @@ package by.bsuir.ksis.dmanager.ui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 
 import static by.bsuir.ksis.dmanager.ui.Util.imageButton;
 import static by.bsuir.ksis.dmanager.ui.Util.loadImage;
@@ -23,6 +24,12 @@ class ControlPanel extends JPanel {
         stopDownloadButton.setEnabled(false);
         add(deleteDownloadButton);
         deleteDownloadButton.setEnabled(false);
+    }
+
+    void setOnAddButtonClick(ActionListener listener) {
+        if (listener != null) {
+            addDownloadButton.addActionListener(listener);
+        }
     }
 
 

@@ -14,12 +14,17 @@ public class MainWindow extends JFrame {
     public MainWindow() throws HeadlessException {
         super("Менеджер загрузок");
         add(controlPanel, BorderLayout.NORTH);
+        defineControlActions();
         createDownloadsTabs();
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setVisible(true);
         requestFocus();
+    }
+
+    private void defineControlActions() {
+        controlPanel.setOnAddButtonClick(e -> new DownloadDialog(this));
     }
 
     private void createDownloadsTabs() {
@@ -32,6 +37,5 @@ public class MainWindow extends JFrame {
         tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
         add(tabbedPane, BorderLayout.CENTER);
     }
-
 
 }
