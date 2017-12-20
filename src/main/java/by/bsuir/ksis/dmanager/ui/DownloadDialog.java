@@ -1,16 +1,23 @@
 package by.bsuir.ksis.dmanager.ui;
 
+import by.bsuir.ksis.dmanager.api.data.DownloadPriority;
+
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+
+import static by.bsuir.ksis.dmanager.ui.Util.createDownloadName;
+import static by.bsuir.ksis.dmanager.ui.Util.directoryName;
 
 class DownloadDialog extends JDialog {
 
     private JPanel contentPane;
     private JTextArea linksTextArea = new JTextArea();
+    private File destination;
     private JFileChooser destinationChooser = new JFileChooser();
     private JButton destinationButton = new JButton();
     private JTextField nameTextField = new JTextField();
-    private JComboBox<String> priorityComboBox = new JComboBox<>();
+    private JComboBox<DownloadPriority> priorityComboBox = new JComboBox<>(DownloadPriority.values());
     private JCheckBox authCheckBox = new JCheckBox("Авторизация");
     private JTextField loginTextField = new JTextField();
     private JPasswordField passwordField = new JPasswordField();
@@ -24,6 +31,8 @@ class DownloadDialog extends JDialog {
         createAuthBlock();
         createSubmitButton();
         add(contentPane, BorderLayout.CENTER);
+        defineBehavior();
+        setFieldsState();
         pack();
         setResizable(false);
         setLocationRelativeTo(owner);
@@ -122,6 +131,34 @@ class DownloadDialog extends JDialog {
         JPanel panel = new JPanel(new FlowLayout());
         panel.add(submitButton);
         add(panel, BorderLayout.SOUTH);
+    }
+    
+    private void defineBehavior() {
+        destinationChooser.addActionListener(e -> {
+            destination = destinationChooser.getSelectedFile();
+            destinationButton.setText(directoryName(destination));
+        });
+        
+        destinationButton.addActionListener(e -> {
+            destinationChooser.setMultiSelectionEnabled(false);
+            destinationChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            destinationChooser.showSaveDialog(this);
+        });
+        
+        authCheckBox.addActionListener(e -> {
+            loginTextField.setEnabled(authCheckBox.isSelected());
+            passwordField.setEnabled(authCheckBox.isSelected());
+        });
+    }
+    
+    private void setFieldsState() {
+        destinationChooser.setSelectedFile(new File(System.getProperty("user.home")));
+        destinationChooser.approveSelection();
+        priorityComboBox.setSelectedItem(DownloadPriority.NORMAL);
+        nameTextField.setText(createDownloadName());
+        startCheckBox.doClick();
+        authCheckBox.doClick();
+        authCheckBox.doClick();
     }
 
     private GridBagConstraints constraintsWithPadding(boolean label) {
