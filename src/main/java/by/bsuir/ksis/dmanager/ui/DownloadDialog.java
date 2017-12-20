@@ -9,6 +9,7 @@ class DownloadDialog extends JDialog {
     private JTextArea linksTextArea = new JTextArea();
     private JFileChooser destinationChooser = new JFileChooser();
     private JButton destinationButton = new JButton();
+    private JTextField nameTextField = new JTextField();
     private JComboBox<String> priorityComboBox = new JComboBox<>();
     private JCheckBox authCheckBox = new JCheckBox("Авторизация");
     private JTextField loginTextField = new JTextField();
@@ -47,28 +48,40 @@ class DownloadDialog extends JDialog {
         GridBagConstraints destinationLabelConstraints = constraintsWithPadding(true);
         destinationLabelConstraints.gridx = 0;
         destinationLabelConstraints.gridy = 1;
-        contentPane.add(new JLabel("Сохранить"), destinationLabelConstraints);
+        contentPane.add(new JLabel("Сохранить в"), destinationLabelConstraints);
 
         GridBagConstraints destinationButtonConstraints  = constraintsWithPadding(false);
         destinationButtonConstraints.gridy = 1;
         destinationButtonConstraints.gridwidth = 2;
         destinationButtonConstraints.fill = GridBagConstraints.HORIZONTAL;
         contentPane.add(destinationButton,destinationButtonConstraints);
+        
+        GridBagConstraints nameLabelConstraints = constraintsWithPadding(true);
+        nameLabelConstraints.gridx = 0;
+        nameLabelConstraints.gridy = 2;
+        contentPane.add(new JLabel("Название"), nameLabelConstraints);
+        
+        GridBagConstraints nameFieldConstraints = constraintsWithPadding(false);
+        nameFieldConstraints.gridy = 2;
+        nameFieldConstraints.gridwidth = 2;
+        nameFieldConstraints.fill = GridBagConstraints.HORIZONTAL;
+        nameTextField.setColumns(30);
+        contentPane.add(nameTextField, nameFieldConstraints);
 
         GridBagConstraints priorityLabelConstraints = constraintsWithPadding(true);
         priorityLabelConstraints.gridx = 0;
-        priorityLabelConstraints.gridy = 2;
+        priorityLabelConstraints.gridy = 3;
         contentPane.add(new JLabel("Приоритет"), priorityLabelConstraints);
 
         GridBagConstraints priorityComboBoxConstraints = constraintsWithPadding(false);
-        priorityComboBoxConstraints.gridy = 2;
+        priorityComboBoxConstraints.gridy = 3;
         priorityComboBoxConstraints.gridwidth = 2;
         priorityComboBoxConstraints.fill = GridBagConstraints.HORIZONTAL;
         contentPane.add(priorityComboBox, priorityComboBoxConstraints);
 
         GridBagConstraints startCheckBoxConstraints = constraintsWithPadding(false);
         startCheckBoxConstraints.gridx = 1;
-        startCheckBoxConstraints.gridy = 3;
+        startCheckBoxConstraints.gridy = 4;
         startCheckBoxConstraints.fill = GridBagConstraints.HORIZONTAL;
         contentPane.add(startCheckBox, startCheckBoxConstraints);
     }
@@ -76,31 +89,31 @@ class DownloadDialog extends JDialog {
     private void createAuthBlock() {
         GridBagConstraints cc = constraintsWithPadding(false);
         cc.gridx = 1;
-        cc.gridy = 4;
+        cc.gridy = 5;
         cc.fill = GridBagConstraints.HORIZONTAL;
         contentPane.add(authCheckBox, cc);
 
         GridBagConstraints lc1 = constraintsWithPadding(true);
         lc1.gridx = 0;
-        lc1.gridy = 5;
+        lc1.gridy = 6;
         cc.gridwidth = 1;
         contentPane.add(new JLabel("Логин"), lc1);
 
         loginTextField.setColumns(30);
         GridBagConstraints flc = constraintsWithPadding(false);
-        flc.gridy = 5;
+        flc.gridy = 6;
         flc.gridwidth = 2;
         contentPane.add(loginTextField, flc);
 
         GridBagConstraints lc2 = constraintsWithPadding(true);
         lc2.gridx = 0;
-        lc2.gridy = 6;
+        lc2.gridy = 7;
         cc.gridwidth = 1;
         contentPane.add(new JLabel("Пароль"), lc2);
 
         passwordField.setColumns(30);
         GridBagConstraints fpc = constraintsWithPadding(false);
-        fpc.gridy = 6;
+        fpc.gridy = 7;
         fpc.gridwidth = 2;
         contentPane.add(passwordField, fpc);
     }
