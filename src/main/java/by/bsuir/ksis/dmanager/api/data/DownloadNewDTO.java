@@ -1,9 +1,11 @@
 package by.bsuir.ksis.dmanager.api.data;
 
+import by.bsuir.ksis.dmanager.domain.DownloadPriority;
 import lombok.Builder;
 import lombok.Data;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * @author Vladislav Piseckij
@@ -12,7 +14,7 @@ import java.io.File;
 @Builder
 public class DownloadNewDTO {
     
-    private final String links;
+    private final List<String> links;
     
     private final File destination;
     

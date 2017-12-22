@@ -2,15 +2,16 @@ package by.bsuir.ksis.dmanager.ui;
 
 import by.bsuir.ksis.dmanager.api.data.CredentialsDTO;
 import by.bsuir.ksis.dmanager.api.data.DownloadNewDTO;
-import by.bsuir.ksis.dmanager.api.data.DownloadPriority;
+import by.bsuir.ksis.dmanager.domain.DownloadPriority;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.util.Arrays;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
-import static by.bsuir.ksis.dmanager.ui.Util.createDownloadName;
-import static by.bsuir.ksis.dmanager.ui.Util.directoryName;
-import static by.bsuir.ksis.dmanager.ui.Util.showError;
+import static by.bsuir.ksis.dmanager.ui.Util.*;
 
 class DownloadDialog extends JDialog {
 
@@ -26,9 +27,12 @@ class DownloadDialog extends JDialog {
     private JPasswordField passwordField = new JPasswordField();
     private JCheckBox startCheckBox = new JCheckBox("Сразу запустить");
     private JButton submitButton = new JButton("Сохранить");
+    
+    private Consumer<DownloadNewDTO> onSubmit;
 
-    DownloadDialog(Window owner) {
+    DownloadDialog(Window owner, Consumer<DownloadNewDTO> onSubmit) {
         super(owner, "Новая загрузка", ModalityType.DOCUMENT_MODAL);
+        this.onSubmit = onSubmit;
         contentPane = new JPanel(new GridBagLayout());
         createMainBlock();
         createAuthBlock();
@@ -43,11 +47,12 @@ class DownloadDialog extends JDialog {
         requestFocus();
     }
     
-    
-    
     private DownloadNewDTO getDownload() {
+        java.util.List<String> links = Arrays.stream(linksTextArea.getText().split("\\n"))
+            .map(String::trim).filter(link -> !link.isEmpty()).collect(Collectors.toList());
+        
         return DownloadNewDTO.builder()
-            .links(linksTextArea.getText())
+            .links(links)
             .destination(destination)
             .name(nameTextField.getText())
             .priority(priorityComboBox.getItemAt(priorityComboBox.getSelectedIndex()))
@@ -198,8 +203,8 @@ class DownloadDialog extends JDialog {
         
         submitButton.addActionListener(e -> {
             DownloadNewDTO download = getDownload();
-            if (validateDownload(download)) {
-                System.out.println("Success");
+            if (validateDownload(download) && onSubmit != null) {
+                onSubmit.accept(download);
             }
         });
     }
@@ -207,7 +212,7 @@ class DownloadDialog extends JDialog {
     private void setFieldsState() {
         destinationChooser.setSelectedFile(new File(System.getProperty("user.home")));
         destinationChooser.approveSelection();
-        priorityComboBox.setSelectedItem(DownloadPriority.NORMAL);
+        priorityComboBox.setSelectedItem(DownloadPriority.NORM);
         nameTextField.setText(createDownloadName());
         startCheckBox.doClick();
         authCheckBox.doClick();

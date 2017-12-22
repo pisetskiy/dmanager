@@ -5,7 +5,6 @@ import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Random;
@@ -15,8 +14,8 @@ class Util {
     private Util() {
     }
     
-    private static final char[] CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("ssmmhhddMMYY");
+    private static final char[] CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toLowerCase().toCharArray();
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
     private static final Random RND = new Random();
     
     static String createDownloadName() {
@@ -24,6 +23,7 @@ class Util {
             CHARS[RND.nextInt(CHARS.length)] +
             CHARS[RND.nextInt(CHARS.length)] +
             CHARS[RND.nextInt(CHARS.length)] +
+            '-' +
             LocalDateTime.now().format(DATE_TIME_FORMATTER)
         ;
     }

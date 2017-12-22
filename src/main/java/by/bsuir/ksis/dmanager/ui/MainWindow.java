@@ -1,17 +1,21 @@
 package by.bsuir.ksis.dmanager.ui;
 
+import by.bsuir.ksis.dmanager.api.service.DownloadsService;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 
 public class MainWindow extends JFrame {
+    
+    private final DownloadsService service;
 
     private ControlPanel controlPanel = new ControlPanel();
     private DownloadsPanel waitDownloadsPanel = new DownloadsPanel();
     private DownloadsPanel runDownloadsPanel = new DownloadsPanel();
     private DownloadsPanel finishDownloadsPanel = new DownloadsPanel();
 
-    public MainWindow() throws HeadlessException {
+    public MainWindow(DownloadsService service) throws HeadlessException {
         super("Менеджер загрузок");
         add(controlPanel, BorderLayout.NORTH);
         defineControlActions();
@@ -21,10 +25,12 @@ public class MainWindow extends JFrame {
         setLocationRelativeTo(null);
         setVisible(true);
         requestFocus();
+        
+        this.service = service;
     }
 
     private void defineControlActions() {
-        controlPanel.setOnAddButtonClick(e -> new DownloadDialog(this));
+        controlPanel.setOnAddButtonClick(e -> new DownloadDialog(this, service::create));
     }
 
     private void createDownloadsTabs() {

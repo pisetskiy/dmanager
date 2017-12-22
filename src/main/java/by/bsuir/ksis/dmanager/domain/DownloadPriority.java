@@ -1,11 +1,12 @@
-package by.bsuir.ksis.dmanager.api.data;
+package by.bsuir.ksis.dmanager.domain;
 
 /**
  * @author Vladislav Piseckij
  */
 public enum DownloadPriority {
+    
     HIGH("Высокий"),
-    NORMAL("Обычный"),
+    NORM("Обычный"),
     LOW("Низкий");
     
     private String value;
