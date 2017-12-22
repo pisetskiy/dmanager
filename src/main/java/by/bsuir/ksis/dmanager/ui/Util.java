@@ -50,5 +50,11 @@ class Util {
     static String directoryName(File directory) {
         return directory != null ? directory.getName() : "";
     }
+    
+    static boolean showError(String error) {
+        JOptionPane.showMessageDialog(null, error, "Сообщение об ошибке", JOptionPane.ERROR_MESSAGE);
+        
+        return false;
+    }
 
 }

@@ -1,5 +1,7 @@
 package by.bsuir.ksis.dmanager.ui;
 
+import by.bsuir.ksis.dmanager.api.data.CredentialsDTO;
+import by.bsuir.ksis.dmanager.api.data.DownloadNewDTO;
 import by.bsuir.ksis.dmanager.api.data.DownloadPriority;
 
 import javax.swing.*;
@@ -8,6 +10,7 @@ import java.io.File;
 
 import static by.bsuir.ksis.dmanager.ui.Util.createDownloadName;
 import static by.bsuir.ksis.dmanager.ui.Util.directoryName;
+import static by.bsuir.ksis.dmanager.ui.Util.showError;
 
 class DownloadDialog extends JDialog {
 
@@ -38,6 +41,47 @@ class DownloadDialog extends JDialog {
         setLocationRelativeTo(owner);
         setVisible(true);
         requestFocus();
+    }
+    
+    
+    
+    private DownloadNewDTO getDownload() {
+        return DownloadNewDTO.builder()
+            .links(linksTextArea.getText())
+            .destination(destination)
+            .name(nameTextField.getText())
+            .priority(priorityComboBox.getItemAt(priorityComboBox.getSelectedIndex()))
+            .start(startCheckBox.isSelected())
+            .credentials(
+                authCheckBox.isSelected() ?
+                    new CredentialsDTO(loginTextField.getText(), String.valueOf(passwordField.getPassword())) :
+                    null
+            )
+            .build();
+    }
+    
+    private boolean validateDownload(DownloadNewDTO download) {
+        if (download.getLinks() == null || download.getLinks().isEmpty()) {
+            return showError("Отсутствуют ссылки на файлы");
+        }
+        
+        if (download.getDestination() == null || !download.getDestination().isDirectory()) {
+            return showError("Укажите папку для сохранения файлов");
+        }
+        
+        if (download.getName() == null || download.getName().trim().isEmpty()) {
+            return showError("Укажите название закачки");
+        }
+        
+        if (download.getPriority() == null) {
+            return showError("Укажите приоритет загрузки");
+        }
+        
+        if (authCheckBox.isSelected() && (loginTextField.getText() == null || loginTextField.getText().trim().isEmpty())) {
+            return showError("Укажите логин");
+        }
+        
+        return true;
     }
 
     private void createMainBlock() {
@@ -135,8 +179,10 @@ class DownloadDialog extends JDialog {
     
     private void defineBehavior() {
         destinationChooser.addActionListener(e -> {
-            destination = destinationChooser.getSelectedFile();
-            destinationButton.setText(directoryName(destination));
+            if (destinationChooser.getSelectedFile() != null) {
+                destination = destinationChooser.getSelectedFile();
+                destinationButton.setText(directoryName(destination));
+            }
         });
         
         destinationButton.addActionListener(e -> {
@@ -148,6 +194,13 @@ class DownloadDialog extends JDialog {
         authCheckBox.addActionListener(e -> {
             loginTextField.setEnabled(authCheckBox.isSelected());
             passwordField.setEnabled(authCheckBox.isSelected());
+        });
+        
+        submitButton.addActionListener(e -> {
+            DownloadNewDTO download = getDownload();
+            if (validateDownload(download)) {
+                System.out.println("Success");
+            }
         });
     }
     
