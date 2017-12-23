@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static by.bsuir.ksis.dmanager.ui.Util.getRandomString;
+
 /**
  * @author Vladislav Piseckij
  */
@@ -24,11 +26,14 @@ public class DownloadsService {
     private final DownloadDAO downloadDAO;
     
     private final ItemDAO itemDAO;
-    
+
+    private final DownloadsViewModel downloadsViewModel;
+
     @Autowired
-    public DownloadsService(DownloadDAO downloadDAO, ItemDAO itemDAO) {
+    public DownloadsService(DownloadDAO downloadDAO, ItemDAO itemDAO, DownloadsViewModel downloadsViewModel) {
         this.downloadDAO = downloadDAO;
         this.itemDAO = itemDAO;
+        this.downloadsViewModel = downloadsViewModel;
     }
     
     public Result create(NewDownload newDownload) {
@@ -52,6 +57,7 @@ public class DownloadsService {
             .map(link -> Item.builder()
                 .link(link)
                 .destination(itemsDestination)
+                .name(getRandomString(10))
                 .status(Item.Status.WAIT)
                 .build()
             )
@@ -59,8 +65,8 @@ public class DownloadsService {
         download = downloadDAO.create(download);
         final Integer downloadId = download.getId();
         files.stream().peek(file -> file.setDownloadId(downloadId)).forEach(itemDAO::create);
-        
-        //TODO: show new download on UI
+
+        downloadsViewModel.emitDownloadsListChange();
         //TODO: start download if user select "start after creation"
         
         return Result.success();

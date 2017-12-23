@@ -6,9 +6,9 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Util {
 
@@ -16,17 +16,13 @@ public class Util {
     }
     
     private static final char[] CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toLowerCase().toCharArray();
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
     private static final Random RND = new Random();
     
-    static String createDownloadName() {
-        return String.valueOf(CHARS[RND.nextInt(CHARS.length)]) +
-            CHARS[RND.nextInt(CHARS.length)] +
-            CHARS[RND.nextInt(CHARS.length)] +
-            CHARS[RND.nextInt(CHARS.length)] +
-            '-' +
-            LocalDateTime.now().format(DATE_TIME_FORMATTER)
-        ;
+    public static String getRandomString(int length) {
+        return IntStream.range(0, length)
+            .map(num -> RND.nextInt(CHARS.length))
+            .mapToObj(num -> String.valueOf(CHARS[num]))
+            .collect(Collectors.joining());
     }
 
     static ImageIcon loadImage(String file) {

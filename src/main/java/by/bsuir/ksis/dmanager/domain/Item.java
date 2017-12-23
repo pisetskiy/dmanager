@@ -20,6 +20,12 @@ public class Item {
     
     private Status status;
 
+    private String name;
+
+    private long totalBytes;
+
+    private long loadedBytes;
+
     public enum Status {
         WAIT("Готов к загрузке"),
         ERROR("Не удается загрузить"),

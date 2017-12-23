@@ -218,7 +218,7 @@ class DownloadDialog extends JDialog {
         destinationChooser.setSelectedFile(new File(System.getProperty("user.home")));
         destinationChooser.approveSelection();
         priorityComboBox.setSelectedItem(Download.Priority.NORMAL);
-        nameTextField.setText(createDownloadName());
+        nameTextField.setText(getRandomString(8));
         startCheckBox.doClick();
         authCheckBox.doClick();
         authCheckBox.doClick();

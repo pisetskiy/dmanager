@@ -29,9 +29,11 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`id_download`	INTEGER NOT NULL,
 	`link`	TEXT NOT NULL,
 	`destination`	TEXT NOT NULL,
-	`status`	TEXT NOT NULL
+	`status`	TEXT NOT NULL,
+	`name`	TEXT NOT NULL,
+	`totalBytes`	INTEGER NOT NULL DEFAULT 0,
+	`loadedBytes`	INTEGER NOT NULL DEFAULT 0
 );
-
 CREATE UNIQUE INDEX IF NOT EXISTS `item_id_pk` ON `item` (
 	`id`	ASC
 );

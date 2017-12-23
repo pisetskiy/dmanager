@@ -58,10 +58,16 @@ public class DownloadDAO extends DAO {
         "where\n" +
         "   name = ?";
 
+    @Transactional(readOnly = true)
     public Download findByName(String name) {
         List<Download> downloads = jdbcTemplate.query(selectByName, new Object[]{name}, DOWNLOAD_ROW_MAPPER);
 
         return downloads.isEmpty() ? null : downloads.get(0);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Download> list() {
+        return jdbcTemplate.query(select, DOWNLOAD_ROW_MAPPER);
     }
 
     private static final RowMapper<Download> DOWNLOAD_ROW_MAPPER = (rs, rowNum) -> Download.builder()

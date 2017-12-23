@@ -26,17 +26,28 @@ public class Download {
     
     private String password;
 
+    private long allFilesCount;
+
+    private long totalBytes;
+
+    private long loadedBytes;
+
     public enum Priority {
-        HIGH("Высокий"),
-        NORMAL("Обычный"),
-        LOW("Низкий");
+        HIGH("Высокий", 1),
+        NORMAL("Обычный", 2),
+        LOW("Низкий", 3);
 
         private String value;
+        private int position;
 
-        Priority(String value) {
+        Priority(String value, int position) {
             this.value = value;
+            this.position = position;
         }
 
+        public int position() {
+            return position;
+        }
 
         @Override
         public String toString() {
@@ -45,10 +56,10 @@ public class Download {
     }
 
     public enum Status {
-        WAIT("Готова к загрузке"),
-        ERROR("Не удается загрузить"),
+        WAIT("Остановлена"),
+        ERROR("Ошибка"),
         RUN("Загружается"),
-        END("Загружена");
+        END("Завершена");
 
         private String value;
 
