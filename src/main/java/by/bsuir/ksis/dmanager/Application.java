@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.swing.*;
 
+import static by.bsuir.ksis.dmanager.ui.Util.openWindow;
+
 @Configuration
 @ComponentScan
 public class Application {
@@ -16,6 +18,7 @@ public class Application {
     public static void main(String[] args) {
         ApplicationContext ctx = new AnnotationConfigApplicationContext(Application.class);
         DownloadsService service = ctx.getBean(DownloadsService.class);
-        SwingUtilities.invokeLater(() -> new MainWindow(service));
+        MainWindow window = new MainWindow(service);
+        SwingUtilities.invokeLater(() -> openWindow(window));
     }
 }

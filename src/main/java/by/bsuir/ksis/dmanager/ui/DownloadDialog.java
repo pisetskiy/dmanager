@@ -32,7 +32,6 @@ class DownloadDialog extends JDialog {
 
     DownloadDialog(Window owner, Consumer<DownloadNewDTO> onSubmit) {
         super(owner, "Новая загрузка", ModalityType.DOCUMENT_MODAL);
-        this.onSubmit = onSubmit;
         contentPane = new JPanel(new GridBagLayout());
         createMainBlock();
         createAuthBlock();
@@ -43,8 +42,8 @@ class DownloadDialog extends JDialog {
         pack();
         setResizable(false);
         setLocationRelativeTo(owner);
-        setVisible(true);
-        requestFocus();
+
+        this.onSubmit = onSubmit;
     }
     
     private DownloadNewDTO getDownload() {
@@ -67,23 +66,33 @@ class DownloadDialog extends JDialog {
     
     private boolean validateDownload(DownloadNewDTO download) {
         if (download.getLinks() == null || download.getLinks().isEmpty()) {
-            return showError("Отсутствуют ссылки на файлы");
+            showError("Отсутствуют ссылки на файлы");
+
+            return false;
         }
         
         if (download.getDestination() == null || !download.getDestination().isDirectory()) {
-            return showError("Укажите папку для сохранения файлов");
+            showError("Укажите папку для сохранения файлов");
+
+            return false;
         }
         
         if (download.getName() == null || download.getName().trim().isEmpty()) {
-            return showError("Укажите название закачки");
+            showError("Укажите название закачки");
+
+            return false;
         }
         
         if (download.getPriority() == null) {
-            return showError("Укажите приоритет загрузки");
+            showError("Укажите приоритет загрузки");
+
+            return false;
         }
         
         if (authCheckBox.isSelected() && (loginTextField.getText() == null || loginTextField.getText().trim().isEmpty())) {
-            return showError("Укажите логин");
+            showError("Укажите логин");
+
+            return false;
         }
         
         return true;

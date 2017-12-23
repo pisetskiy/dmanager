@@ -9,6 +9,7 @@ import by.bsuir.ksis.dmanager.persistence.DownloadDAO;
 import by.bsuir.ksis.dmanager.persistence.ItemDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
  * @author Vladislav Piseckij
  */
 @Service
+@Transactional
 public class DownloadsService {
     
     private final DownloadDAO downloadDAO;
@@ -41,22 +43,32 @@ public class DownloadsService {
             .created(LocalDateTime.now())
             .build()
             ;
-        File itemsDestination = new File(downloadDTO.getDestination(), downloadDTO.getName());
+        if (!checkDownloadNameUnique(download)) {
+            return ActionResult.fail("Закачка с таким именем уже существует");
+        }
+
+        String itemsDestination = downloadDTO.getDestination().getAbsolutePath() + File.pathSeparator + download.getName();
+
+
         List<Item> files = downloadDTO.getLinks().stream()
             .map(link -> Item.builder()
                 .link(link)
-                .destination(itemsDestination.getAbsolutePath())
+                .destination(itemsDestination)
                 .status(ItemStatus.WAIT)
                 .build()
             )
             .collect(Collectors.toList());
         download = downloadDAO.create(download);
         final Integer downloadId = download.getId();
-        files = files.stream().peek(file -> file.setDownloadId(downloadId)).map(itemDAO::create).collect(Collectors.toList());
+        files.stream().peek(file -> file.setDownloadId(downloadId)).forEach(itemDAO::create);
         
         //TODO: show new download on UI
         //TODO: start download if user select "start after creation"
         
-        return ActionResult.SUCCESS;
+        return ActionResult.success();
+    }
+
+    private boolean checkDownloadNameUnique(Download download) {
+        return downloadDAO.findByName(download.getName()) == null;
     }
 }

@@ -2,6 +2,7 @@ package by.bsuir.ksis.dmanager.ui;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,7 +10,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
-class Util {
+public class Util {
 
     private Util() {
     }
@@ -51,10 +52,18 @@ class Util {
         return directory != null ? directory.getName() : "";
     }
     
-    static boolean showError(String error) {
-        JOptionPane.showMessageDialog(null, error, "Сообщение об ошибке", JOptionPane.ERROR_MESSAGE);
-        
-        return false;
+    static void showError(String error) {
+        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(
+            null,
+            error,
+            "Сообщение об ошибке",
+            JOptionPane.ERROR_MESSAGE
+        ));
+    }
+
+    public static void openWindow(Window window) {
+        window.setVisible(true);
+        window.requestFocus();
     }
 
 }

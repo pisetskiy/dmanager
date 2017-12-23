@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS `download` (
 	`name`	TEXT NOT NULL UNIQUE,
 	`priority`	TEXT NOT NULL,
 	`status`	TEXT NOT NULL,
-	`created`	TEXT NOT NULL,
+	`created`	INTEGER NOT NULL,
 	`username`	TEXT,
 	`password`	TEXT
 );

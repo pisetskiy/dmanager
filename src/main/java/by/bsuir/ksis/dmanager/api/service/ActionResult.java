@@ -8,7 +8,15 @@ import lombok.Data;
 @Data
 public class ActionResult {
     
-    public static final ActionResult SUCCESS = new ActionResult(ResultStatus.SUCCESS, "");
+    private static final ActionResult SUCCESS = new ActionResult(ResultStatus.SUCCESS, "");
+
+    public static ActionResult success() {
+        return SUCCESS;
+    }
+
+    public static ActionResult fail(String message) {
+        return new ActionResult(ResultStatus.FAIL, message);
+    }
     
     private final ResultStatus status;
     
