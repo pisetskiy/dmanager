@@ -1,10 +1,7 @@
-package by.bsuir.ksis.dmanager.api.service;
+package by.bsuir.ksis.dmanager.logic;
 
-import by.bsuir.ksis.dmanager.api.data.DownloadNewDTO;
 import by.bsuir.ksis.dmanager.domain.Download;
-import by.bsuir.ksis.dmanager.domain.DownloadStatus;
 import by.bsuir.ksis.dmanager.domain.Item;
-import by.bsuir.ksis.dmanager.domain.ItemStatus;
 import by.bsuir.ksis.dmanager.persistence.DownloadDAO;
 import by.bsuir.ksis.dmanager.persistence.ItemDAO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -33,28 +31,28 @@ public class DownloadsService {
         this.itemDAO = itemDAO;
     }
     
-    public ActionResult create(DownloadNewDTO downloadDTO) {
+    public Result create(NewDownload newDownload) {
         Download download = Download.builder()
-            .name(downloadDTO.getName())
-            .priority(downloadDTO.getPriority())
-            .username(downloadDTO.getCredentials() != null ? downloadDTO.getCredentials().getUsername() : "ANONYMOUS")
-            .password(downloadDTO.getCredentials() != null ? downloadDTO.getCredentials().getPassword() : "")
-            .status(DownloadStatus.WAIT)
+            .name(newDownload.getName())
+            .priority(newDownload.getPriority())
+            .username(Objects.toString(newDownload.getUsername(), "ANONYMOUS"))
+            .password(newDownload.getPassword())
+            .status(Download.Status.WAIT)
             .created(LocalDateTime.now())
             .build()
             ;
         if (!checkDownloadNameUnique(download)) {
-            return ActionResult.fail("Закачка с таким именем уже существует");
+            return Result.fail("Закачка с таким именем уже существует");
         }
 
-        String itemsDestination = downloadDTO.getDestination().getAbsolutePath() + File.pathSeparator + download.getName();
+        String itemsDestination = newDownload.getDestination() + File.pathSeparator + download.getName();
 
 
-        List<Item> files = downloadDTO.getLinks().stream()
+        List<Item> files = newDownload.getLinks().stream()
             .map(link -> Item.builder()
                 .link(link)
                 .destination(itemsDestination)
-                .status(ItemStatus.WAIT)
+                .status(Item.Status.WAIT)
                 .build()
             )
             .collect(Collectors.toList());
@@ -65,7 +63,7 @@ public class DownloadsService {
         //TODO: show new download on UI
         //TODO: start download if user select "start after creation"
         
-        return ActionResult.success();
+        return Result.success();
     }
 
     private boolean checkDownloadNameUnique(Download download) {

@@ -1,8 +1,7 @@
 package by.bsuir.ksis.dmanager.ui;
 
-import by.bsuir.ksis.dmanager.api.data.CredentialsDTO;
-import by.bsuir.ksis.dmanager.api.data.DownloadNewDTO;
-import by.bsuir.ksis.dmanager.domain.DownloadPriority;
+import by.bsuir.ksis.dmanager.domain.Download;
+import by.bsuir.ksis.dmanager.logic.NewDownload;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,16 +20,16 @@ class DownloadDialog extends JDialog {
     private JFileChooser destinationChooser = new JFileChooser();
     private JButton destinationButton = new JButton();
     private JTextField nameTextField = new JTextField();
-    private JComboBox<DownloadPriority> priorityComboBox = new JComboBox<>(DownloadPriority.values());
+    private JComboBox<Download.Priority> priorityComboBox = new JComboBox<>(Download.Priority.values());
     private JCheckBox authCheckBox = new JCheckBox("Авторизация");
     private JTextField loginTextField = new JTextField();
     private JPasswordField passwordField = new JPasswordField();
     private JCheckBox startCheckBox = new JCheckBox("Сразу запустить");
     private JButton submitButton = new JButton("Сохранить");
     
-    private Consumer<DownloadNewDTO> onSubmit;
+    private Consumer<NewDownload> onSubmit;
 
-    DownloadDialog(Window owner, Consumer<DownloadNewDTO> onSubmit) {
+    DownloadDialog(Window owner, Consumer<NewDownload> onSubmit) {
         super(owner, "Новая загрузка", ModalityType.DOCUMENT_MODAL);
         contentPane = new JPanel(new GridBagLayout());
         createMainBlock();
@@ -46,32 +45,29 @@ class DownloadDialog extends JDialog {
         this.onSubmit = onSubmit;
     }
     
-    private DownloadNewDTO getDownload() {
+    private NewDownload getDownload() {
         java.util.List<String> links = Arrays.stream(linksTextArea.getText().split("\\n"))
             .map(String::trim).filter(link -> !link.isEmpty()).collect(Collectors.toList());
         
-        return DownloadNewDTO.builder()
+        return NewDownload.builder()
             .links(links)
-            .destination(destination)
+            .destination(destination.getAbsolutePath())
             .name(nameTextField.getText())
             .priority(priorityComboBox.getItemAt(priorityComboBox.getSelectedIndex()))
+            .username(authCheckBox.isSelected() ? loginTextField.getText() : null)
+            .password(authCheckBox.isSelected() ? String.valueOf(passwordField.getPassword()) : null)
             .start(startCheckBox.isSelected())
-            .credentials(
-                authCheckBox.isSelected() ?
-                    new CredentialsDTO(loginTextField.getText(), String.valueOf(passwordField.getPassword())) :
-                    null
-            )
             .build();
     }
     
-    private boolean validateDownload(DownloadNewDTO download) {
+    private boolean validateDownload(NewDownload download) {
         if (download.getLinks() == null || download.getLinks().isEmpty()) {
             showError("Отсутствуют ссылки на файлы");
 
             return false;
         }
         
-        if (download.getDestination() == null || !download.getDestination().isDirectory()) {
+        if (download.getDestination() == null || download.getDestination().isEmpty()) {
             showError("Укажите папку для сохранения файлов");
 
             return false;
@@ -211,7 +207,7 @@ class DownloadDialog extends JDialog {
         });
         
         submitButton.addActionListener(e -> {
-            DownloadNewDTO download = getDownload();
+            NewDownload download = getDownload();
             if (validateDownload(download) && onSubmit != null) {
                 onSubmit.accept(download);
             }
@@ -221,7 +217,7 @@ class DownloadDialog extends JDialog {
     private void setFieldsState() {
         destinationChooser.setSelectedFile(new File(System.getProperty("user.home")));
         destinationChooser.approveSelection();
-        priorityComboBox.setSelectedItem(DownloadPriority.NORM);
+        priorityComboBox.setSelectedItem(Download.Priority.NORMAL);
         nameTextField.setText(createDownloadName());
         startCheckBox.doClick();
         authCheckBox.doClick();

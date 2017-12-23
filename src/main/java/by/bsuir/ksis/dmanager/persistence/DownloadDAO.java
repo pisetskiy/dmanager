@@ -1,8 +1,6 @@
 package by.bsuir.ksis.dmanager.persistence;
 
 import by.bsuir.ksis.dmanager.domain.Download;
-import by.bsuir.ksis.dmanager.domain.DownloadPriority;
-import by.bsuir.ksis.dmanager.domain.DownloadStatus;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,8 +67,8 @@ public class DownloadDAO extends DAO {
     private static final RowMapper<Download> DOWNLOAD_ROW_MAPPER = (rs, rowNum) -> Download.builder()
         .id(rs.getInt("id"))
         .name(rs.getString("name"))
-        .priority(DownloadPriority.valueOf(rs.getString("priority")))
-        .status(DownloadStatus.valueOf(rs.getString("status")))
+        .priority(Download.Priority.valueOf(rs.getString("priority")))
+        .status(Download.Status.valueOf(rs.getString("status")))
         .created(rs.getTimestamp("created").toLocalDateTime())
         .username(rs.getString("username"))
         .password(rs.getString("password"))

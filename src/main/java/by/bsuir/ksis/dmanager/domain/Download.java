@@ -16,13 +16,50 @@ public class Download {
     
     private String name;
     
-    private DownloadPriority priority;
+    private Priority priority;
+
+    private Status status;
+
+    private LocalDateTime created;
     
     private String username;
     
     private String password;
-    
-    private LocalDateTime created;
-    
-    private DownloadStatus status;
+
+    public enum Priority {
+        HIGH("Высокий"),
+        NORMAL("Обычный"),
+        LOW("Низкий");
+
+        private String value;
+
+        Priority(String value) {
+            this.value = value;
+        }
+
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    public enum Status {
+        WAIT("Готова к загрузке"),
+        ERROR("Не удается загрузить"),
+        RUN("Загружается"),
+        END("Загружена");
+
+        private String value;
+
+        Status(String value) {
+            this.value = value;
+        }
+
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
 }

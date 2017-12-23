@@ -1,9 +1,8 @@
 package by.bsuir.ksis.dmanager.ui;
 
-import by.bsuir.ksis.dmanager.api.data.DownloadNewDTO;
-import by.bsuir.ksis.dmanager.api.service.ActionResult;
-import by.bsuir.ksis.dmanager.api.service.DownloadsService;
-import by.bsuir.ksis.dmanager.api.service.ResultStatus;
+import by.bsuir.ksis.dmanager.logic.DownloadsService;
+import by.bsuir.ksis.dmanager.logic.NewDownload;
+import by.bsuir.ksis.dmanager.logic.Result;
 
 import javax.swing.*;
 import java.awt.*;
@@ -52,11 +51,11 @@ public class MainWindow extends JFrame {
         add(tabbedPane, BorderLayout.CENTER);
     }
 
-    private void createNewDownload(final DownloadNewDTO download) {
+    private void createNewDownload(final NewDownload download) {
         SwingUtilities.invokeLater(() -> {
             try {
-                ActionResult result = service.create(download);
-                if (ResultStatus.SUCCESS == result.getStatus()) {
+                Result result = service.create(download);
+                if (Result.Status.SUCCESS == result.getStatus()) {
                     this.newDownloadDialog.dispose();
                 } else {
                     showError(result.getMessage());
