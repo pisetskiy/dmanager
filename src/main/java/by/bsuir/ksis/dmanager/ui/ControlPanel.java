@@ -19,16 +19,21 @@ class ControlPanel extends JPanel {
 
         add(addDownloadButton);
         add(startDownloadButton);
-        startDownloadButton.setEnabled(false);
         add(stopDownloadButton);
         stopDownloadButton.setEnabled(false);
         add(deleteDownloadButton);
         deleteDownloadButton.setEnabled(false);
     }
 
-    void setOnAddButtonClick(ActionListener listener) {
+    void addOnAddButtonClick(ActionListener listener) {
         if (listener != null) {
             addDownloadButton.addActionListener(listener);
+        }
+    }
+
+    void addOnStartButtonClick(ActionListener listener) {
+        if (listener != null) {
+            startDownloadButton.addActionListener(listener);
         }
     }
 

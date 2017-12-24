@@ -42,7 +42,7 @@ public class DownloadsService {
             .priority(newDownload.getPriority())
             .username(Objects.toString(newDownload.getUsername(), "ANONYMOUS"))
             .password(newDownload.getPassword())
-            .status(Download.Status.WAIT)
+            .status(newDownload.isStart() ? Download.Status.WAIT : Download.Status.RUN)
             .created(LocalDateTime.now())
             .build()
             ;
@@ -67,8 +67,21 @@ public class DownloadsService {
         files.stream().peek(file -> file.setDownloadId(downloadId)).forEach(itemDAO::create);
 
         downloadsViewModel.emitDownloadsListChange();
-        //TODO: start download if user select "start after creation"
         
+        return Result.success();
+    }
+
+    public Result startDownloads(List<Download> downloads) {
+        long updatedCount = downloads.stream()
+            .filter(d -> Download.Status.RUN != d.getStatus())
+            .peek(d -> d.setStatus(Download.Status.RUN))
+            .peek(downloadDAO::update)
+            .count();
+
+        if (updatedCount > 0) {
+            downloadsViewModel.emitDownloadsListChange();
+        }
+
         return Result.success();
     }
 

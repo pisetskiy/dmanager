@@ -7,8 +7,10 @@ import lombok.Getter;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 class DownloadsPanel extends JPanel {
 
@@ -24,6 +26,13 @@ class DownloadsPanel extends JPanel {
     public void showDownloads(java.util.List<Download> downloads) {
         downloadsTableModel.setDownloads(downloads);
         downloadsTableModel.fireTableDataChanged();
+    }
+
+    public List<Download> getSelectedDownloads() {
+        int[] rows = downloadsTable.getSelectedRows();
+        return Arrays.stream(rows)
+            .mapToObj(rowIndex -> downloadsTableModel.getDownloadByRow(rowIndex))
+            .collect(Collectors.toList());
     }
 
     private static class DownloadsTableModel extends AbstractTableModel {
@@ -66,6 +75,10 @@ class DownloadsPanel extends JPanel {
         public Object getValueAt(int rowIndex, int columnIndex) {
             Download download = downloads.get(rowIndex);
             return COLUMNS[columnIndex].getFunction().apply(download);
+        }
+
+        public Download getDownloadByRow(int rowIndex) {
+            return downloads.get(rowIndex);
         }
     }
 

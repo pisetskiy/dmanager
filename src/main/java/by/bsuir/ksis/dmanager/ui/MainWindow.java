@@ -49,9 +49,14 @@ public class MainWindow extends JFrame {
     }
 
     private void defineControlActions() {
-        controlPanel.setOnAddButtonClick(e -> {
+        controlPanel.addOnAddButtonClick(e -> {
             this.newDownloadDialog = new DownloadDialog(this, this::createNewDownload);
             openWindow(this.newDownloadDialog);
+        });
+
+        controlPanel.addOnStartButtonClick(e -> {
+            java.util.List<Download> downloads = waitDownloadsPanel.getSelectedDownloads();
+            startDownloads(downloads);
         });
 
         viewModel.submitOnDownloadsListChange(downloads -> {
@@ -88,9 +93,22 @@ public class MainWindow extends JFrame {
         SwingUtilities.invokeLater(() -> {
             try {
                 Result result = service.create(download);
-                if (Result.Status.SUCCESS == result.getStatus()) {
+                if (result.isSuccess()) {
                     this.newDownloadDialog.dispose();
                 } else {
+                    showError(result.getMessage());
+                }
+            } catch (Exception e) {
+                showError(e.getMessage());
+            }
+        });
+    }
+
+    private void startDownloads(java.util.List<Download> downloads) {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                Result result = service.startDownloads(downloads);
+                if (!result.isSuccess()) {
                     showError(result.getMessage());
                 }
             } catch (Exception e) {

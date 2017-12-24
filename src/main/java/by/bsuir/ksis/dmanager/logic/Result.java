@@ -22,6 +22,10 @@ public class Result {
     
     private final String message;
 
+    public boolean isSuccess() {
+        return status == Status.SUCCESS;
+    }
+
     public enum Status {
         SUCCESS,
         FAIL

@@ -17,18 +17,18 @@ import java.util.List;
 @Transactional
 public class DownloadDAO extends DAO {
     
-    private static final String select = "" +
+    private static final String SELECT = "" +
         "select\n" +
         "   id, name, priority, status, created, username, password\n" +
         "from\n" +
         "   download";
     
-    private static final String selectById = "" +
-        select + "\n" +
+    private static final String SELECT_BY_ID = "" +
+        SELECT + "\n" +
         "where\n" +
         "   id = ?";
     
-    private static final String create = "" +
+    private static final String CREATE = "" +
         "insert into\n" +
         "   download(name, priority, status, created, username, password)\n" +
         "values\n" +
@@ -37,7 +37,7 @@ public class DownloadDAO extends DAO {
     public Download create(Download download) {
         Integer id = (Integer)insert(
             con -> {
-                PreparedStatement statement = con.prepareStatement(create, Statement.RETURN_GENERATED_KEYS);
+                PreparedStatement statement = con.prepareStatement(CREATE, Statement.RETURN_GENERATED_KEYS);
                 statement.setString(1, download.getName());
                 statement.setString(2, download.getPriority().name());
                 statement.setString(3, download.getStatus().name());
@@ -53,21 +53,47 @@ public class DownloadDAO extends DAO {
         return download;
     }
 
-    private static final String selectByName = "" +
-        select + "\n" +
+    private static final String SELECT_BY_NAME = "" +
+        SELECT + "\n" +
         "where\n" +
         "   name = ?";
 
     @Transactional(readOnly = true)
     public Download findByName(String name) {
-        List<Download> downloads = jdbcTemplate.query(selectByName, new Object[]{name}, DOWNLOAD_ROW_MAPPER);
+        List<Download> downloads = jdbcTemplate.query(SELECT_BY_NAME, new Object[]{name}, DOWNLOAD_ROW_MAPPER);
 
         return downloads.isEmpty() ? null : downloads.get(0);
     }
 
     @Transactional(readOnly = true)
     public List<Download> list() {
-        return jdbcTemplate.query(select, DOWNLOAD_ROW_MAPPER);
+        return jdbcTemplate.query(SELECT, DOWNLOAD_ROW_MAPPER);
+    }
+
+    private static final String UPDATE = "" +
+        "update\n" +
+        "   download\n" +
+        "set\n" +
+        "   name = ?\n" +
+        "   ,priority = ?\n" +
+        "   ,status = ?\n" +
+        "   ,created = ?\n" +
+        "   ,username = ?\n" +
+        "   ,password = ?\n" +
+        "where\n" +
+        "   id = ?";
+
+    public void update(Download download) {
+        jdbcTemplate.update(
+            UPDATE,
+            download.getName(),
+            download.getPriority().name(),
+            download.getStatus().name(),
+            Timestamp.valueOf(download.getCreated()),
+            download.getUsername(),
+            download.getPassword(),
+            download.getId()
+        );
     }
 
     private static final RowMapper<Download> DOWNLOAD_ROW_MAPPER = (rs, rowNum) -> Download.builder()
