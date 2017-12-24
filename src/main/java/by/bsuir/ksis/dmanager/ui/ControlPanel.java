@@ -22,7 +22,6 @@ class ControlPanel extends JPanel {
         add(stopDownloadButton);
         stopDownloadButton.setEnabled(false);
         add(deleteDownloadButton);
-        deleteDownloadButton.setEnabled(false);
     }
 
     void addOnAddButtonClick(ActionListener listener) {
@@ -37,5 +36,9 @@ class ControlPanel extends JPanel {
         }
     }
 
-
+    void addOnDeleteButtonClick(ActionListener listener) {
+        if (listener != null) {
+            deleteDownloadButton.addActionListener(listener);
+        }
+    }
 }

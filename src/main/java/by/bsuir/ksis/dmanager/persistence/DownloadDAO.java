@@ -96,6 +96,16 @@ public class DownloadDAO extends DAO {
         );
     }
 
+    private static final String DELETE = "" +
+        "delete from\n" +
+        "   download\n" +
+        "where\n" +
+        "   id = ?";
+
+    public void delete(Integer id) {
+        jdbcTemplate.update(DELETE, id);
+    }
+
     private static final RowMapper<Download> DOWNLOAD_ROW_MAPPER = (rs, rowNum) -> Download.builder()
         .id(rs.getInt("id"))
         .name(rs.getString("name"))

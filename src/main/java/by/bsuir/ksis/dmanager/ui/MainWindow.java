@@ -49,6 +49,11 @@ public class MainWindow extends JFrame {
             startDownloads(downloads);
         });
 
+        controlPanel.addOnDeleteButtonClick(e -> {
+            java.util.List<Download> downloads = downloadsPanel.getSelectedDownloads();
+            deleteDownloads(downloads);
+        });
+
         viewModel.submitOnDownloadsListChange(downloads -> {
             downloads = downloads.stream()
                 .sorted(
@@ -70,7 +75,7 @@ public class MainWindow extends JFrame {
                     showError(result.getMessage());
                 }
             } catch (Exception e) {
-                showError(e.getMessage());
+                e.printStackTrace();
             }
         });
     }
@@ -83,7 +88,20 @@ public class MainWindow extends JFrame {
                     showError(result.getMessage());
                 }
             } catch (Exception e) {
-                showError(e.getMessage());
+               e.printStackTrace();
+            }
+        });
+    }
+
+    private void deleteDownloads(java.util.List<Download> downloads) {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                Result result = service.deleteDownloads(downloads);
+                if (!result.isSuccess()) {
+                    showError(result.getMessage());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
     }

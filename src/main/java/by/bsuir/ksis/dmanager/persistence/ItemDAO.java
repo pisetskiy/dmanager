@@ -64,4 +64,14 @@ public class ItemDAO extends DAO {
         return result;
     }
 
+    private static final String DELETE_BY_DOWNLOAD = "" +
+        "delete from\n" +
+        "   item\n" +
+        "where\n" +
+        "   id_download = ?";
+
+    public void deleteByDownload(Integer downloadId) {
+        jdbcTemplate.update(DELETE_BY_DOWNLOAD, downloadId);
+    }
+
 }
