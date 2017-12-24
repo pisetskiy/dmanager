@@ -28,7 +28,7 @@ public class DownloadsViewModel {
 
     private final Set<Consumer<List<Download>>> downloadsListListeners = new HashSet<>();
 
-    public void submitOnDownloadsListChange(Consumer<List<Download>> listener) {
+    public void subscribeOnDownloadsListChange(Consumer<List<Download>> listener) {
         if (listener != null) {
             downloadsListListeners.add(listener);
         }

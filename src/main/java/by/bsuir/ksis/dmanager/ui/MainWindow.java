@@ -44,17 +44,13 @@ public class MainWindow extends JFrame {
             openWindow(this.newDownloadDialog);
         });
 
-        controlPanel.addOnStartButtonClick(e -> {
-            java.util.List<Download> downloads = downloadsPanel.getSelectedDownloads();
-            startDownloads(downloads);
-        });
+        controlPanel.addOnStartButtonClick(e -> startDownloads(downloadsPanel.getSelectedDownloads()));
 
-        controlPanel.addOnDeleteButtonClick(e -> {
-            java.util.List<Download> downloads = downloadsPanel.getSelectedDownloads();
-            deleteDownloads(downloads);
-        });
+        controlPanel.addOnStopButtonClick(e -> stopDownloads(downloadsPanel.getSelectedDownloads()));
 
-        viewModel.submitOnDownloadsListChange(downloads -> {
+        controlPanel.addOnDeleteButtonClick(e -> deleteDownloads(downloadsPanel.getSelectedDownloads()));
+
+        viewModel.subscribeOnDownloadsListChange(downloads -> {
             downloads = downloads.stream()
                 .sorted(
                     DownloadByPriorityComparator.INSTANCE
@@ -89,6 +85,19 @@ public class MainWindow extends JFrame {
                 }
             } catch (Exception e) {
                e.printStackTrace();
+            }
+        });
+    }
+
+    private void stopDownloads(java.util.List<Download> downloads) {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                Result result = service.stopDownloads(downloads);
+                if (!result.isSuccess()) {
+                    showError(result.getMessage());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
     }

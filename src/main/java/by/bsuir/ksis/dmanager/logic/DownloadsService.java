@@ -85,13 +85,26 @@ public class DownloadsService {
         return Result.success();
     }
 
+    public Result stopDownloads(List<Download> downloads) {
+        //todo: need to stop running downlods before delete
+        long stoppedCount = downloads.stream()
+            .filter(d -> Download.Status.RUN == d.getStatus())
+            .peek(d -> d.setStatus(Download.Status.WAIT))
+            .peek(downloadDAO::update)
+            .count();
+
+        if (stoppedCount > 0) {
+            downloadsViewModel.emitDownloadsListChange();
+        }
+
+        return Result.success();
+    }
+
     public Result deleteDownloads(List<Download> downloads) {
         //todo: need to stop running downlods before delete
         long deletedCount = downloads.stream()
-            .peek(d -> {
-                itemDAO.deleteByDownload(d.getId());
-                downloadDAO.delete(d.getId());
-            })
+            .peek(d -> itemDAO.deleteByDownload(d.getId()))
+            .peek(d -> downloadDAO.delete(d.getId()))
             .count();
 
         if (deletedCount > 0) {
