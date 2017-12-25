@@ -15,6 +15,8 @@ public class Download {
     private Integer id;
     
     private String name;
+
+    private String destination;
     
     private Priority priority;
 
