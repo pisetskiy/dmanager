@@ -40,7 +40,7 @@ public class Util {
         return null;
     }
 
-    static JButton imageButton(ImageIcon image) {
+    static JButton imageButton(ImageIcon image, String title) {
         return new JButton(image);
     }
     

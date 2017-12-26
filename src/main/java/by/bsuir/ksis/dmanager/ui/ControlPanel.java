@@ -9,10 +9,10 @@ import static by.bsuir.ksis.dmanager.ui.Util.loadImage;
 
 class ControlPanel extends JPanel {
 
-    private JButton addDownloadButton = imageButton(loadImage("icons/add.png"));
-    private JButton startDownloadButton = imageButton(loadImage("icons/start.png"));
-    private JButton stopDownloadButton = imageButton(loadImage("icons/stop.png"));
-    private JButton deleteDownloadButton = imageButton(loadImage("icons/delete.png"));
+    private JButton addDownloadButton = imageButton(loadImage("icons/add.png"), "Добавить");
+    private JButton startDownloadButton = imageButton(loadImage("icons/start.png"), "Запустить");
+    private JButton stopDownloadButton = imageButton(loadImage("icons/stop.png"), "Остановить");
+    private JButton deleteDownloadButton = imageButton(loadImage("icons/delete.png"), "Удалить");
 
     ControlPanel() {
         super(new FlowLayout(FlowLayout.LEFT));
