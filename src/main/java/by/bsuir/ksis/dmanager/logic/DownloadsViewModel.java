@@ -16,7 +16,6 @@ import java.util.function.Consumer;
 public class DownloadsViewModel {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
-
     private DownloadDAO downloadDAO;
     private ItemDAO itemDAO;
 

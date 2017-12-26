@@ -24,9 +24,7 @@ import static by.bsuir.ksis.dmanager.ui.Util.getRandomString;
 public class DownloadsService {
     
     private final DownloadDAO downloadDAO;
-    
     private final ItemDAO itemDAO;
-
     private final DownloadsViewModel downloadsViewModel;
 
     @Autowired

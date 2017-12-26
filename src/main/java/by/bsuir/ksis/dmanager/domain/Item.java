@@ -11,19 +11,12 @@ import lombok.Data;
 public class Item {
     
     private Integer id;
-    
     private Integer downloadId;
-    
     private String link;
-    
     private String destination;
-    
     private Status status;
-
     private String name;
-
     private long totalBytes;
-
     private long loadedBytes;
 
     public enum Status {
@@ -37,8 +30,7 @@ public class Item {
         Status(String value) {
             this.value = value;
         }
-
-
+        
         @Override
         public String toString() {
             return value;
