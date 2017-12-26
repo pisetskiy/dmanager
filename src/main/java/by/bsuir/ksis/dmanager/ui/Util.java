@@ -29,8 +29,9 @@ public class Util {
         InputStream resource = Util.class.getClassLoader().getResourceAsStream(file);
         if (resource != null) {
             try {
-
-                return new ImageIcon(ImageIO.read(resource));
+                Image image = ImageIO.read(resource);
+                image = image.getScaledInstance(16, 16, Image.SCALE_DEFAULT);
+                return new ImageIcon(image);
             } catch (IOException e) {
                 e.printStackTrace();
                 // should never happen
@@ -40,8 +41,8 @@ public class Util {
         return null;
     }
 
-    static JButton imageButton(ImageIcon image) {
-        return new JButton(image);
+    static JButton imageButton(ImageIcon image, String title) {
+        return new JButton(title, image);
     }
     
     static String directoryName(File directory) {
