@@ -7,28 +7,26 @@ import lombok.Data;
  */
 @Data
 public class Result {
-    
-    private static final Result SUCCESS = new Result(Status.SUCCESS, "");
+
 
     public static Result success() {
-        return SUCCESS;
+        return new Result(true, "");
     }
 
     public static Result fail(String message) {
-        return new Result(Status.FAIL, message);
+        return new Result(false, message);
     }
     
-    private final Status status;
+    private final boolean success;
     
     private final String message;
 
     public boolean isSuccess() {
-        return status == Status.SUCCESS;
+        return success;
     }
 
-    public enum Status {
-        SUCCESS,
-        FAIL
+    public boolean isFail() {
+        return !success;
     }
     
 }

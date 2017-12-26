@@ -4,22 +4,24 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * @author Vladislav Piseckij
  */
 @Data
 @Builder
-public class Download {
+public class File {
     
     private Integer id;
-    private String name;
-    private String destination;
-    private Priority priority;
+    private Integer downloadId;
+    private String link;
+    private String username;
+    private String password;
     private Status status;
-    private LocalDateTime created;
+    private String name;
+    private long totalBytes;
+    private long loadedBytes;
     private String message;
-    private List<File> files;
+    private LocalDateTime created;
 
 }

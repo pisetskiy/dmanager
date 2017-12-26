@@ -1,11 +1,11 @@
 CREATE TABLE IF NOT EXISTS `download` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
 	`name`	TEXT NOT NULL UNIQUE,
-	`priority`	TEXT NOT NULL,
+	`destination` TEXT NOT NULL,
+	`priority`	INTEGER NOT NULL,
 	`status`	TEXT NOT NULL,
 	`created`	INTEGER NOT NULL,
-	`username`	TEXT,
-	`password`	TEXT
+	`message`   TEXT
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS `download_id_pk` ON `download` (
@@ -24,24 +24,36 @@ CREATE INDEX IF NOT EXISTS `download_priority` ON `download` (
 	`priority`	ASC
 );
 
-CREATE TABLE IF NOT EXISTS `item` (
+CREATE INDEX IF NOT EXISTS `download_created` ON `download` (
+	`created`	ASC
+);
+
+CREATE TABLE IF NOT EXISTS `file` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
 	`id_download`	INTEGER NOT NULL,
 	`link`	TEXT NOT NULL,
-	`destination`	TEXT NOT NULL,
+	`username` TEXT,
+	`password` TEXT,
 	`status`	TEXT NOT NULL,
 	`name`	TEXT NOT NULL,
 	`totalBytes`	INTEGER NOT NULL DEFAULT 0,
-	`loadedBytes`	INTEGER NOT NULL DEFAULT 0
+	`loadedBytes`	INTEGER NOT NULL DEFAULT 0,
+	`message` TEXT,
+	`created` INTEGER NOT NULL
 );
-CREATE UNIQUE INDEX IF NOT EXISTS `item_id_pk` ON `item` (
+
+CREATE UNIQUE INDEX IF NOT EXISTS `file_id_pk` ON `file` (
 	`id`	ASC
 );
 
-CREATE INDEX IF NOT EXISTS `item_id_download` ON `item` (
+CREATE INDEX IF NOT EXISTS `file_id_download` ON `file` (
 	`id_download`	ASC
 );
 
-CREATE INDEX IF NOT EXISTS `item_status` ON `item` (
+CREATE INDEX IF NOT EXISTS `file_status` ON `file` (
 	`status`	ASC
+);
+
+CREATE INDEX IF NOT EXISTS `file_created` ON `file` (
+	`created`	ASC
 );

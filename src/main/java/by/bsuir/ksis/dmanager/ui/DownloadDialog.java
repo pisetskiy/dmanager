@@ -1,11 +1,12 @@
 package by.bsuir.ksis.dmanager.ui;
 
 import by.bsuir.ksis.dmanager.domain.Download;
-import by.bsuir.ksis.dmanager.logic.NewDownload;
+import by.bsuir.ksis.dmanager.domain.File;
+import by.bsuir.ksis.dmanager.domain.Priority;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -15,25 +16,23 @@ import static by.bsuir.ksis.dmanager.ui.Util.*;
 class DownloadDialog extends JDialog {
 
     private JPanel contentPane;
-    private JTextArea linksTextArea = new JTextArea();
-    private File destination;
+    private java.io.File destination;
     private JFileChooser destinationChooser = new JFileChooser();
     private JButton destinationButton = new JButton();
-    private JTextField nameTextField = new JTextField();
-    private JComboBox<Download.Priority> priorityComboBox = new JComboBox<>(Download.Priority.values());
-    private JCheckBox authCheckBox = new JCheckBox("Авторизация");
-    private JTextField loginTextField = new JTextField();
-    private JPasswordField passwordField = new JPasswordField();
-    private JCheckBox startCheckBox = new JCheckBox("Сразу запустить");
+    private JTextField nameField = new JTextField();
+    private JComboBox<Priority> priorityBox = new JComboBox<>(Priority.values());
+    private FilesTableModel filesTableModel = new FilesTableModel();
+    private JTable filesTable = new JTable(filesTableModel);
+    private JButton addFileButton = new JButton("Добавить");
+    private JButton deleteFilesButton = new JButton("Удалить");
     private JButton submitButton = new JButton("Сохранить");
     
-    private Consumer<NewDownload> onSubmit;
+    private Consumer<Download> onSubmit;
 
-    DownloadDialog(Window owner, Consumer<NewDownload> onSubmit) {
+    DownloadDialog(Window owner, Consumer<Download> onSubmit) {
         super(owner, "Новая загрузка", ModalityType.DOCUMENT_MODAL);
         contentPane = new JPanel(new GridBagLayout());
         createMainBlock();
-        createAuthBlock();
         createSubmitButton();
         add(contentPane, BorderLayout.CENTER);
         defineBehavior();
@@ -45,24 +44,19 @@ class DownloadDialog extends JDialog {
         this.onSubmit = onSubmit;
     }
     
-    private NewDownload getDownload() {
-        java.util.List<String> links = Arrays.stream(linksTextArea.getText().split("\\n"))
-            .map(String::trim).filter(link -> !link.isEmpty()).collect(Collectors.toList());
-        
-        return NewDownload.builder()
-            .links(links)
+    private Download getDownload() {
+        return Download.builder()
+            .name(nameField.getText())
             .destination(destination.getAbsolutePath())
-            .name(nameTextField.getText())
-            .priority(priorityComboBox.getItemAt(priorityComboBox.getSelectedIndex()))
-            .username(authCheckBox.isSelected() ? loginTextField.getText() : null)
-            .password(authCheckBox.isSelected() ? String.valueOf(passwordField.getPassword()) : null)
-            .start(startCheckBox.isSelected())
+            .priority(priorityBox.getItemAt(priorityBox.getSelectedIndex()))
+            .files(filesTableModel.getFiles())
             .build();
     }
     
-    private boolean validateDownload(NewDownload download) {
-        if (download.getLinks() == null || download.getLinks().isEmpty()) {
-            showError("Отсутствуют ссылки на файлы");
+    private boolean validateDownload(Download download) {
+
+        if (download.getName() == null || download.getName().trim().isEmpty()) {
+            showError("Укажите название закачки");
 
             return false;
         }
@@ -73,112 +67,98 @@ class DownloadDialog extends JDialog {
             return false;
         }
         
-        if (download.getName() == null || download.getName().trim().isEmpty()) {
-            showError("Укажите название закачки");
-
-            return false;
-        }
-        
         if (download.getPriority() == null) {
             showError("Укажите приоритет загрузки");
 
             return false;
         }
-        
-        if (authCheckBox.isSelected() && (loginTextField.getText() == null || loginTextField.getText().trim().isEmpty())) {
-            showError("Укажите логин");
+
+        if (download.getFiles() == null || download.getFiles().isEmpty()) {
+            showError("Добавьте файлы для загрузки");
 
             return false;
+        }
+
+        for (File file : download.getFiles()) {
+            if (file == null) {
+                showError("Ошибка при чтении списка файлов");
+
+                return false;
+            }
+
+            if (file.getLink() == null || file.getLink().trim().isEmpty()) {
+                showError("У некотрых файлов не указана ссылка для загрузки");
+
+                return false;
+            }
         }
         
         return true;
     }
 
     private void createMainBlock() {
-        GridBagConstraints filesLabelConstraints = constraintsWithPadding(true);
-        filesLabelConstraints.gridx = 0;
-        filesLabelConstraints.gridy = 0;
-        contentPane.add(new JLabel("Файлы"), filesLabelConstraints);
 
-        GridBagConstraints filesScrollConstrints = constraintsWithPadding(false);
-        filesScrollConstrints.gridy = 0;
-        filesScrollConstrints.gridwidth = 2;
-        JScrollPane scrollPane = new JScrollPane(linksTextArea);
-        linksTextArea.setColumns(30);
-        linksTextArea.setRows(4);
-        contentPane.add(scrollPane, filesScrollConstrints);
+        GridBagConstraints nameLabelConstraints = constraintsWithPadding(true);
+        nameLabelConstraints.gridx = 0;
+        nameLabelConstraints.gridy = 0;
+        contentPane.add(new JLabel("Имя"), nameLabelConstraints);
+
+        GridBagConstraints nameFieldConstraints = constraintsWithPadding(false);
+        nameFieldConstraints.gridy = 0;
+        nameFieldConstraints.gridwidth = 2;
+        nameFieldConstraints.fill = GridBagConstraints.HORIZONTAL;
+//        nameField.setColumns(30);
+        contentPane.add(nameField, nameFieldConstraints);
 
         GridBagConstraints destinationLabelConstraints = constraintsWithPadding(true);
         destinationLabelConstraints.gridx = 0;
         destinationLabelConstraints.gridy = 1;
-        contentPane.add(new JLabel("Сохранить в"), destinationLabelConstraints);
+        contentPane.add(new JLabel("Загрузить в"), destinationLabelConstraints);
 
         GridBagConstraints destinationButtonConstraints  = constraintsWithPadding(false);
         destinationButtonConstraints.gridy = 1;
         destinationButtonConstraints.gridwidth = 2;
         destinationButtonConstraints.fill = GridBagConstraints.HORIZONTAL;
         contentPane.add(destinationButton,destinationButtonConstraints);
-        
-        GridBagConstraints nameLabelConstraints = constraintsWithPadding(true);
-        nameLabelConstraints.gridx = 0;
-        nameLabelConstraints.gridy = 2;
-        contentPane.add(new JLabel("Название"), nameLabelConstraints);
-        
-        GridBagConstraints nameFieldConstraints = constraintsWithPadding(false);
-        nameFieldConstraints.gridy = 2;
-        nameFieldConstraints.gridwidth = 2;
-        nameFieldConstraints.fill = GridBagConstraints.HORIZONTAL;
-        nameTextField.setColumns(30);
-        contentPane.add(nameTextField, nameFieldConstraints);
 
         GridBagConstraints priorityLabelConstraints = constraintsWithPadding(true);
         priorityLabelConstraints.gridx = 0;
-        priorityLabelConstraints.gridy = 3;
+        priorityLabelConstraints.gridy = 2;
         contentPane.add(new JLabel("Приоритет"), priorityLabelConstraints);
 
         GridBagConstraints priorityComboBoxConstraints = constraintsWithPadding(false);
-        priorityComboBoxConstraints.gridy = 3;
+        priorityComboBoxConstraints.gridy = 2;
         priorityComboBoxConstraints.gridwidth = 2;
         priorityComboBoxConstraints.fill = GridBagConstraints.HORIZONTAL;
-        contentPane.add(priorityComboBox, priorityComboBoxConstraints);
+        contentPane.add(priorityBox, priorityComboBoxConstraints);
 
-        GridBagConstraints startCheckBoxConstraints = constraintsWithPadding(false);
-        startCheckBoxConstraints.gridx = 1;
-        startCheckBoxConstraints.gridy = 4;
-        startCheckBoxConstraints.fill = GridBagConstraints.HORIZONTAL;
-        contentPane.add(startCheckBox, startCheckBoxConstraints);
-    }
+        GridBagConstraints filesTableLabelConstraints = constraintsWithPadding(true);
+        filesTableLabelConstraints.gridy = 3;
+        filesTableLabelConstraints.gridx = 0;
+        filesTableLabelConstraints.gridwidth = 1;
+        contentPane.add(new JLabel("Файлы"), filesTableLabelConstraints);
 
-    private void createAuthBlock() {
-        GridBagConstraints cc = constraintsWithPadding(false);
-        cc.gridx = 1;
-        cc.gridy = 5;
-        cc.fill = GridBagConstraints.HORIZONTAL;
-        contentPane.add(authCheckBox, cc);
+        GridBagConstraints addFileButtonConstraints = constraintsWithPadding(false);
+        addFileButtonConstraints.gridy = 3;
+        addFileButtonConstraints.gridwidth = 1;
+        addFileButtonConstraints.fill = GridBagConstraints.HORIZONTAL;
+        contentPane.add(addFileButton, addFileButtonConstraints);
 
-        GridBagConstraints lc1 = constraintsWithPadding(true);
-        lc1.gridx = 0;
-        lc1.gridy = 6;
-        cc.gridwidth = 1;
-        contentPane.add(new JLabel("Логин"), lc1);
+        GridBagConstraints deleteFilesButtonConstraints = constraintsWithPadding(false);
+        deleteFilesButtonConstraints.gridy = 3;
+        deleteFilesButtonConstraints.fill = GridBagConstraints.HORIZONTAL;
+        deleteFilesButtonConstraints.gridwidth = 1;
+        contentPane.add(deleteFilesButton, deleteFilesButtonConstraints);
 
-        loginTextField.setColumns(30);
-        GridBagConstraints flc = constraintsWithPadding(false);
-        flc.gridy = 6;
-        flc.gridwidth = 2;
-        contentPane.add(loginTextField, flc);
-
-        GridBagConstraints lc2 = constraintsWithPadding(true);
-        lc2.gridx = 0;
-        lc2.gridy = 7;
-        cc.gridwidth = 1;
-        contentPane.add(new JLabel("Пароль"), lc2);
-
-        passwordField.setColumns(30);
-        GridBagConstraints fpc = constraintsWithPadding(false);
-        fpc.gridy = 7;
-        fpc.gridwidth = 2;
-        contentPane.add(passwordField, fpc);
+        GridBagConstraints filesTableConstraints = constraintsWithPadding(true);
+        filesTableConstraints.gridy = 4;
+        filesTableConstraints.gridx = 0;
+        filesTableConstraints.gridwidth = 3;
+        filesTableConstraints.fill = GridBagConstraints.HORIZONTAL;
+        JScrollPane filesScroll = new JScrollPane(filesTable);
+        filesScroll.setPreferredSize(new Dimension(450, 250));
+        filesTable.setFillsViewportHeight(true);
+        contentPane.add(filesScroll, filesTableConstraints);
     }
 
     private void createSubmitButton() {
@@ -200,14 +180,20 @@ class DownloadDialog extends JDialog {
             destinationChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             destinationChooser.showSaveDialog(this);
         });
-        
-        authCheckBox.addActionListener(e -> {
-            loginTextField.setEnabled(authCheckBox.isSelected());
-            passwordField.setEnabled(authCheckBox.isSelected());
+
+        addFileButton.addActionListener(e -> {
+            File file = File.builder().created(LocalDateTime.now()).build();
+            filesTableModel.addFile(file);
+        });
+
+        deleteFilesButton.addActionListener(e -> {
+            int[] rows = filesTable.getSelectedRows();
+            java.util.List<File> files = Arrays.stream(rows).mapToObj(filesTableModel::getFileByRow).collect(Collectors.toList());
+            filesTableModel.deleteFiles(files);
         });
         
         submitButton.addActionListener(e -> {
-            NewDownload download = getDownload();
+            Download download = getDownload();
             if (validateDownload(download) && onSubmit != null) {
                 onSubmit.accept(download);
             }
@@ -215,13 +201,10 @@ class DownloadDialog extends JDialog {
     }
     
     private void setFieldsState() {
-        destinationChooser.setSelectedFile(new File(System.getProperty("user.home")));
+        destinationChooser.setSelectedFile(new java.io.File(System.getProperty("user.home")));
         destinationChooser.approveSelection();
-        priorityComboBox.setSelectedItem(Download.Priority.NORMAL);
-        nameTextField.setText(getRandomString(8));
-        startCheckBox.doClick();
-        authCheckBox.doClick();
-        authCheckBox.doClick();
+        priorityBox.setSelectedItem(Priority.NORMAL);
+        nameField.setText(getRandomString(8));
     }
 
     private GridBagConstraints constraintsWithPadding(boolean label) {

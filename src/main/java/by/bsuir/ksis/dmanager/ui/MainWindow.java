@@ -3,13 +3,10 @@ package by.bsuir.ksis.dmanager.ui;
 import by.bsuir.ksis.dmanager.domain.Download;
 import by.bsuir.ksis.dmanager.logic.DownloadsService;
 import by.bsuir.ksis.dmanager.logic.DownloadsViewModel;
-import by.bsuir.ksis.dmanager.logic.NewDownload;
 import by.bsuir.ksis.dmanager.logic.Result;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Comparator;
-import java.util.stream.Collectors;
 
 import static by.bsuir.ksis.dmanager.ui.Util.openWindow;
 import static by.bsuir.ksis.dmanager.ui.Util.showError;
@@ -33,6 +30,7 @@ public class MainWindow extends JFrame {
         add(downloadsPanel, BorderLayout.CENTER);
         defineControlActions();
         pack();
+        setResizable(false);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         viewModel.emitDownloadsListChange();
@@ -50,18 +48,10 @@ public class MainWindow extends JFrame {
 
         controlPanel.addOnDeleteButtonClick(e -> deleteDownloads(downloadsPanel.getSelectedDownloads()));
 
-        viewModel.subscribeOnDownloadsListChange(downloads -> {
-            downloads = downloads.stream()
-                .sorted(
-                    DownloadByPriorityComparator.INSTANCE
-                        .thenComparing(Comparator.comparing(Download::getCreated).reversed())
-                )
-                .collect(Collectors.toList());
-            downloadsPanel.showDownloads(downloads);
-        });
+        viewModel.subscribeOnDownloadsListChange(downloads -> downloadsPanel.showDownloads(downloads));
     }
 
-    private void createNewDownload(final NewDownload download) {
+    private void createNewDownload(final Download download) {
         SwingUtilities.invokeLater(() -> {
             try {
                 Result result = service.create(download);

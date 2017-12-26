@@ -1,15 +1,14 @@
 package by.bsuir.ksis.dmanager.ui;
 
 import by.bsuir.ksis.dmanager.domain.Download;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 class DownloadsPanel extends JPanel {
@@ -19,6 +18,7 @@ class DownloadsPanel extends JPanel {
 
     DownloadsPanel() {
         JScrollPane scroll = new JScrollPane(downloadsTable);
+        scroll.setPreferredSize(new Dimension(640, 480));
         downloadsTable.setFillsViewportHeight(true);
         add(scroll, BorderLayout.CENTER);
     }
@@ -35,30 +35,22 @@ class DownloadsPanel extends JPanel {
             .collect(Collectors.toList());
     }
 
+    @Getter
+    @Setter
     private static class DownloadsTableModel extends AbstractTableModel {
 
-        private static final Column[] COLUMNS = new Column[] {
-            new Column("Имя", Download::getName),
-            new Column("Состояние", Download::getStatus),
-            new Column("Приоритет", Download::getPriority),
-            new Column("Кол-во файлов", Download::getAllFilesCount),
-            new Column("Всего байт", Download::getTotalBytes),
-            new Column("Загружено байт", Download::getLoadedBytes)
-        };
+        private static final java.util.List<TableColumn<Download>> COLUMNS = Arrays.asList(
+            new TableColumn<>("Имя", Download::getName),
+            new TableColumn<>("Приоритет", Download::getPriority),
+            new TableColumn<>("Состояние", Download::getStatus),
+            new TableColumn<>("Сохраниттся в", Download::getDestination)
+        );
 
         private java.util.List<Download> downloads;
 
-        public List<Download> getDownloads() {
-            return downloads;
-        }
-
-        public void setDownloads(List<Download> downloads) {
-            this.downloads = downloads;
-        }
-
         @Override
         public String getColumnName(int column) {
-            return COLUMNS[column].getName();
+            return COLUMNS.get(column).getName();
         }
 
         @Override
@@ -68,25 +60,17 @@ class DownloadsPanel extends JPanel {
 
         @Override
         public int getColumnCount() {
-            return COLUMNS.length;
+            return COLUMNS.size();
         }
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
             Download download = downloads.get(rowIndex);
-            return COLUMNS[columnIndex].getFunction().apply(download);
+            return COLUMNS.get(columnIndex).getFunction().apply(download);
         }
 
-        public Download getDownloadByRow(int rowIndex) {
+        Download getDownloadByRow(int rowIndex) {
             return downloads.get(rowIndex);
         }
-    }
-
-    @Getter
-    @AllArgsConstructor
-    private static class Column {
-        private final String name;
-
-        private final Function<Download, Object> function;
     }
 }

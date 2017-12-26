@@ -1,6 +1,8 @@
 package by.bsuir.ksis.dmanager.persistence;
 
 import by.bsuir.ksis.dmanager.domain.Download;
+import by.bsuir.ksis.dmanager.domain.Priority;
+import by.bsuir.ksis.dmanager.domain.Status;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Vladislav Piseckij
@@ -17,41 +20,34 @@ import java.util.List;
 @Transactional
 public class DownloadDAO extends DAO {
     
-    private static final String SELECT = "" +
-        "select\n" +
-        "   id, name, priority, status, created, username, password\n" +
-        "from\n" +
-        "   download";
-    
-    private static final String SELECT_BY_ID = "" +
-        SELECT + "\n" +
-        "where\n" +
-        "   id = ?";
-    
     private static final String CREATE = "" +
         "insert into\n" +
-        "   download(name, priority, status, created, username, password)\n" +
+        "   download(name, destination, priority, status, created, message)\n" +
         "values\n" +
         "   (?, ?, ?, ?, ?, ?)";
 
-    public Download create(Download download) {
+    public void create(Download download) {
         Integer id = (Integer)insert(
             con -> {
                 PreparedStatement statement = con.prepareStatement(CREATE, Statement.RETURN_GENERATED_KEYS);
                 statement.setString(1, download.getName());
-                statement.setString(2, download.getPriority().name());
-                statement.setString(3, download.getStatus().name());
-                statement.setTimestamp(4, Timestamp.valueOf(download.getCreated()));
-                statement.setString(5, download.getUsername());
-                statement.setString(6, download.getPassword());
+                statement.setString(2, download.getDestination());
+                statement.setInt(3, download.getPriority().getOrder());
+                statement.setString(4, download.getStatus().name());
+                statement.setTimestamp(5, Timestamp.valueOf(download.getCreated()));
+                statement.setString(6, download.getMessage());
 
                 return statement;
             }
         );
         download.setId(id);
-
-        return download;
     }
+
+    private static final String SELECT = "" +
+        "select\n" +
+        "   id, name, destination, priority, status, created, message\n" +
+        "from\n" +
+        "   download";
 
     private static final String SELECT_BY_NAME = "" +
         SELECT + "\n" +
@@ -65,9 +61,14 @@ public class DownloadDAO extends DAO {
         return downloads.isEmpty() ? null : downloads.get(0);
     }
 
+    private static final String LIST = "" +
+        SELECT + "\n" +
+        "order by\n" +
+        "   priority, created";
+
     @Transactional(readOnly = true)
     public List<Download> list() {
-        return jdbcTemplate.query(SELECT, DOWNLOAD_ROW_MAPPER);
+        return jdbcTemplate.query(LIST, DOWNLOAD_ROW_MAPPER);
     }
 
     private static final String UPDATE = "" +
@@ -75,11 +76,11 @@ public class DownloadDAO extends DAO {
         "   download\n" +
         "set\n" +
         "   name = ?\n" +
+        "   ,destination = ?\n" +
         "   ,priority = ?\n" +
         "   ,status = ?\n" +
         "   ,created = ?\n" +
-        "   ,username = ?\n" +
-        "   ,password = ?\n" +
+        "   ,message = ?\n" +
         "where\n" +
         "   id = ?";
 
@@ -87,11 +88,11 @@ public class DownloadDAO extends DAO {
         jdbcTemplate.update(
             UPDATE,
             download.getName(),
-            download.getPriority().name(),
+            download.getDestination(),
+            download.getPriority().getOrder(),
             download.getStatus().name(),
             Timestamp.valueOf(download.getCreated()),
-            download.getUsername(),
-            download.getPassword(),
+            download.getMessage(),
             download.getId()
         );
     }
@@ -103,16 +104,18 @@ public class DownloadDAO extends DAO {
         "   id = ?";
 
     public void delete(Integer id) {
+        Objects.requireNonNull(id);
+
         jdbcTemplate.update(DELETE, id);
     }
 
     private static final RowMapper<Download> DOWNLOAD_ROW_MAPPER = (rs, rowNum) -> Download.builder()
         .id(rs.getInt("id"))
         .name(rs.getString("name"))
-        .priority(Download.Priority.valueOf(rs.getString("priority")))
-        .status(Download.Status.valueOf(rs.getString("status")))
+        .destination(rs.getString("destination"))
+        .priority(Priority.fromOrder(rs.getInt("priority")))
+        .status(Status.valueOf(rs.getString("status")))
         .created(rs.getTimestamp("created").toLocalDateTime())
-        .username(rs.getString("username"))
-        .password(rs.getString("password"))
+        .message(rs.getString("message"))
         .build();
 }

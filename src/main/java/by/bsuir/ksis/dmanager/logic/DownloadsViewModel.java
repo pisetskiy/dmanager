@@ -1,13 +1,15 @@
 package by.bsuir.ksis.dmanager.logic;
 
 import by.bsuir.ksis.dmanager.domain.Download;
-import by.bsuir.ksis.dmanager.domain.ItemsInfo;
 import by.bsuir.ksis.dmanager.persistence.DownloadDAO;
-import by.bsuir.ksis.dmanager.persistence.ItemDAO;
+import by.bsuir.ksis.dmanager.persistence.FileDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -17,12 +19,12 @@ public class DownloadsViewModel {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private DownloadDAO downloadDAO;
-    private ItemDAO itemDAO;
+    private FileDAO fileDAO;
 
     @Autowired
-    public DownloadsViewModel(DownloadDAO downloadDAO, ItemDAO itemDAO) {
+    public DownloadsViewModel(DownloadDAO downloadDAO, FileDAO fileDAO) {
         this.downloadDAO = downloadDAO;
-        this.itemDAO = itemDAO;
+        this.fileDAO = fileDAO;
     }
 
     private final Set<Consumer<List<Download>>> downloadsListListeners = new HashSet<>();
@@ -36,14 +38,6 @@ public class DownloadsViewModel {
     public void emitDownloadsListChange() {
         executor.submit(() -> {
             List<Download> downloads = Collections.unmodifiableList(downloadDAO.list());
-            Map<Integer, ItemsInfo> downloadsItemsInfo = itemDAO.itemsInfo();
-            downloads.forEach(d -> {
-                ItemsInfo i = downloadsItemsInfo.get(d.getId());
-                if (i == null) return;
-                d.setAllFilesCount(i.getCount());
-                d.setLoadedBytes(i.getLoadedBytes());
-                d.setTotalBytes(i.getTotalBytes());
-            });
             downloadsListListeners.forEach(listener -> listener.accept(downloads));
         });
     }
