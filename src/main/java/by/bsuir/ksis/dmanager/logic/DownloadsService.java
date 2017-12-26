@@ -23,12 +23,19 @@ public class DownloadsService {
     private final DownloadDAO downloadDAO;
     private final FileDAO fileDAO;
     private final DownloadsViewModel downloadsViewModel;
+    private final DownloadsExecutor executor;
 
     @Autowired
-    public DownloadsService(DownloadDAO downloadDAO, FileDAO fileDAO, DownloadsViewModel downloadsViewModel) {
+    public DownloadsService(
+        DownloadDAO downloadDAO,
+        FileDAO fileDAO,
+        DownloadsViewModel downloadsViewModel,
+        DownloadsExecutor executor
+    ) {
         this.downloadDAO = downloadDAO;
         this.fileDAO = fileDAO;
         this.downloadsViewModel = downloadsViewModel;
+        this.executor = executor;
     }
 
     public Result create(final Download download) {
@@ -67,9 +74,9 @@ public class DownloadsService {
     }
 
     public Result stopDownloads(List<Download> downloads) {
-        //todo: need to stop running downlods before delete
         long stoppedCount = downloads.stream()
             .filter(d -> Status.RUN == d.getStatus())
+            .peek(executor::stopDownloadExecution)
             .peek(d -> d.setStatus(Status.READY))
             .peek(downloadDAO::update)
             .count();
@@ -82,8 +89,8 @@ public class DownloadsService {
     }
 
     public Result deleteDownloads(List<Download> downloads) {
-        //todo: need to stop running downlods before delete
         long deletedCount = downloads.stream()
+            .peek(executor::stopDownloadExecution)
             .peek(d -> fileDAO.deleteByDownload(d.getId()))
             .peek(d -> downloadDAO.delete(d.getId()))
             .count();

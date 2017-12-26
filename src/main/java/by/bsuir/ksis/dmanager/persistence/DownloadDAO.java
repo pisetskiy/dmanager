@@ -109,6 +109,21 @@ public class DownloadDAO extends DAO {
         jdbcTemplate.update(DELETE, id);
     }
 
+    private static final String SELECT_FOR_EXECUTION = "" +
+        SELECT + "\n" +
+        "where\n" +
+        "   status = 'RUN'" +
+        "order by\n" +
+        "   priority, created\n" +
+        "limit\n" +
+        "   1";
+
+    public Download getDownloadForExecution() {
+        List<Download> downloads = jdbcTemplate.query(SELECT_FOR_EXECUTION, DOWNLOAD_ROW_MAPPER);
+
+        return downloads.isEmpty() ? null : downloads.get(0);
+    }
+
     private static final RowMapper<Download> DOWNLOAD_ROW_MAPPER = (rs, rowNum) -> Download.builder()
         .id(rs.getInt("id"))
         .name(rs.getString("name"))

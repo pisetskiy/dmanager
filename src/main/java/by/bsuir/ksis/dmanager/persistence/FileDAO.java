@@ -1,12 +1,15 @@
 package by.bsuir.ksis.dmanager.persistence;
 
 import by.bsuir.ksis.dmanager.domain.File;
+import by.bsuir.ksis.dmanager.domain.Status;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -55,4 +58,62 @@ public class FileDAO extends DAO {
         jdbcTemplate.update(DELETE_BY_DOWNLOAD, downloadId);
     }
 
+    private static final String SELECT = "" +
+        "select\n" +
+        "   id, id_download, link, username, password, status, name, message, created\n" +
+        "from\n" +
+        "   file";
+
+    private static final String SELECT_FOR_EXECUTION = "" +
+        SELECT +"\n" +
+        "where\n" +
+        "   id_download = ?\n" +
+        "order by\n" +
+        "   created";
+
+    public List<File> getForFilesExecution(Integer downloadId) {
+        return jdbcTemplate.query(SELECT_FOR_EXECUTION, new Object[]{downloadId}, FILE_ROW_MAPPER);
+    }
+
+    private static final String UPDATE = "" +
+        "update\n" +
+        "   file\n" +
+        "set\n" +
+        "   id_download = ?\n" +
+        "   ,link = ?\n" +
+        "   ,username = ?\n" +
+        "   ,password = ?\n" +
+        "   ,status = ?\n" +
+        "   ,name = ?\n" +
+        "   ,message = ?\n" +
+        "   ,created = ?\n" +
+        "where\n" +
+        "   id = ?";
+
+    public void update(File file) {
+        jdbcTemplate.update(
+            UPDATE,
+            file.getDownloadId(),
+            file.getLink(),
+            file.getUsername(),
+            file.getPassword(),
+            file.getStatus().name(),
+            file.getName(),
+            file.getMessage(),
+            Timestamp.valueOf(file.getCreated()),
+            file.getId()
+        );
+    }
+
+    private static final RowMapper<File> FILE_ROW_MAPPER = (rs, rowNum) -> File.builder()
+        .id(rs.getInt("id"))
+        .downloadId(rs.getInt("id_download"))
+        .link(rs.getString("link"))
+        .username(rs.getString("username"))
+        .password(rs.getString("password"))
+        .status(Status.valueOf(rs.getString("status")))
+        .name(rs.getString("name"))
+        .message(rs.getString("message"))
+        .created(rs.getTimestamp("created").toLocalDateTime())
+        .build();
 }

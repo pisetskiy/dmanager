@@ -19,8 +19,6 @@ public class File {
     private String password;
     private Status status;
     private String name;
-    private long totalBytes;
-    private long loadedBytes;
     private String message;
     private LocalDateTime created;
 

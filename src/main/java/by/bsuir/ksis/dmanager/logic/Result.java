@@ -6,16 +6,18 @@ import lombok.Data;
  * @author Vladislav Piseckij
  */
 @Data
-public class Result {
+public class Result<T> {
 
 
-    public static Result success() {
-        return new Result(true, "");
+    public static <T> Result<T> success() {
+        return new Result<T>(null, true, "");
     }
 
-    public static Result fail(String message) {
-        return new Result(false, message);
+    public static <T> Result<T> fail(String message) {
+        return new Result<T>(null, false, message);
     }
+
+    private final T value;
     
     private final boolean success;
     

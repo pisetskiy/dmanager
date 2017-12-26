@@ -36,8 +36,6 @@ CREATE TABLE IF NOT EXISTS `file` (
 	`password` TEXT,
 	`status`	TEXT NOT NULL,
 	`name`	TEXT NOT NULL,
-	`totalBytes`	INTEGER NOT NULL DEFAULT 0,
-	`loadedBytes`	INTEGER NOT NULL DEFAULT 0,
 	`message` TEXT,
 	`created` INTEGER NOT NULL
 );
