@@ -37,7 +37,7 @@ public class FilesTableModel extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return columnIndex >= 3 ;
+        return columnIndex < 3 ;
     }
 
     @Override

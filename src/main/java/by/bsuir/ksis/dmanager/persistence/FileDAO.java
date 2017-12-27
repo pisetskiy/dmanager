@@ -1,5 +1,6 @@
 package by.bsuir.ksis.dmanager.persistence;
 
+import by.bsuir.ksis.dmanager.domain.Download;
 import by.bsuir.ksis.dmanager.domain.File;
 import by.bsuir.ksis.dmanager.domain.Status;
 import org.springframework.jdbc.core.RowMapper;
@@ -103,6 +104,17 @@ public class FileDAO extends DAO {
             Timestamp.valueOf(file.getCreated()),
             file.getId()
         );
+    }
+
+    private static final String CHECK_ERROR_FILES = "" +
+        SELECT + "\n" +
+        "where\n" +
+        "   id_download = ?\n" +
+        "and\n" +
+        "   status = 'ERROR'";
+
+    public boolean hasErrorFiles(Download download) {
+        return !jdbcTemplate.query(CHECK_ERROR_FILES, new Object[]{download.getId()}, FILE_ROW_MAPPER).isEmpty();
     }
 
     private static final RowMapper<File> FILE_ROW_MAPPER = (rs, rowNum) -> File.builder()
