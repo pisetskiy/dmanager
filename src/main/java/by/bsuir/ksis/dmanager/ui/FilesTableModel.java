@@ -14,7 +14,9 @@ public class FilesTableModel extends AbstractTableModel {
     private static final java.util.List<TableColumn<File>> COLUMNS = Arrays.asList(
         new TableColumn<>("Ссылка", File::getLink),
         new TableColumn<>("Логин", File::getUsername),
-        new TableColumn<>("Пароль", File::getPassword)
+        new TableColumn<>("Пароль", File::getPassword),
+        new TableColumn<>("Состояние", File::getStatus),
+        new TableColumn<>("Сообщение", File::getMessage)
     );
 
     private java.util.List<File> files = new ArrayList<>();
@@ -35,7 +37,7 @@ public class FilesTableModel extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return true;
+        return columnIndex >= 3 ;
     }
 
     @Override

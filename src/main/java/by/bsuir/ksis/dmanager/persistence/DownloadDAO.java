@@ -123,6 +123,17 @@ public class DownloadDAO extends DAO {
 
         return downloads.isEmpty() ? null : downloads.get(0);
     }
+    
+    private static final String SELECT_RUN_DOWNLOADS = "" +
+        SELECT + "\n" +
+        "where\n" +
+        "   status = 'RUN'" +
+        "order by\n" +
+        "   priority, created";
+    
+    public List<Download> getRunDownloads() {
+        return jdbcTemplate.query(SELECT_RUN_DOWNLOADS, DOWNLOAD_ROW_MAPPER);
+    }
 
     private static final RowMapper<Download> DOWNLOAD_ROW_MAPPER = (rs, rowNum) -> Download.builder()
         .id(rs.getInt("id"))

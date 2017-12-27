@@ -76,7 +76,7 @@ public class DownloadsService {
     public Result stopDownloads(List<Download> downloads) {
         long stoppedCount = downloads.stream()
             .filter(d -> Status.RUN == d.getStatus())
-            .peek(executor::stopDownloadExecution)
+            .peek(d -> executor.stopDownloadExecution(d.getId()))
             .peek(d -> d.setStatus(Status.READY))
             .peek(downloadDAO::update)
             .count();
@@ -90,7 +90,7 @@ public class DownloadsService {
 
     public Result deleteDownloads(List<Download> downloads) {
         long deletedCount = downloads.stream()
-            .peek(executor::stopDownloadExecution)
+            .peek(d -> executor.stopDownloadExecution(d.getId()))
             .peek(d -> fileDAO.deleteByDownload(d.getId()))
             .peek(d -> downloadDAO.delete(d.getId()))
             .count();
