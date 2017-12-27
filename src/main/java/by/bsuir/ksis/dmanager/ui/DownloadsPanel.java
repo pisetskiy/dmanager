@@ -43,7 +43,8 @@ class DownloadsPanel extends JPanel {
             new TableColumn<>("Имя", Download::getName),
             new TableColumn<>("Приоритет", Download::getPriority),
             new TableColumn<>("Состояние", Download::getStatus),
-            new TableColumn<>("Сохраниттся в", Download::getDestination)
+            new TableColumn<>("Сохраниться в", Download::getDestination),
+            new TableColumn<>("Сообщение", Download::getMessage)
         );
 
         private java.util.List<Download> downloads;
