@@ -1,8 +1,10 @@
 package by.bsuir.ksis.dmanager.persistence;
 
 import by.bsuir.ksis.dmanager.domain.Download;
+import by.bsuir.ksis.dmanager.domain.File;
 import by.bsuir.ksis.dmanager.domain.Priority;
 import by.bsuir.ksis.dmanager.domain.Status;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,9 @@ import java.util.Objects;
 @Repository
 @Transactional
 public class DownloadDAO extends DAO {
+
+    @Autowired
+    private FileDAO fileDAO;
     
     private static final String CREATE = "" +
         "insert into\n" +
@@ -68,7 +73,13 @@ public class DownloadDAO extends DAO {
 
     @Transactional(readOnly = true)
     public List<Download> list() {
-        return jdbcTemplate.query(LIST, DOWNLOAD_ROW_MAPPER);
+        List<Download> downloads = jdbcTemplate.query(LIST, DOWNLOAD_ROW_MAPPER);
+        for (Download download : downloads) {
+            List<File> files = fileDAO.getForFilesExecution(download.getId());
+            download.setFiles(files);
+        }
+
+        return downloads;
     }
 
     private static final String UPDATE = "" +

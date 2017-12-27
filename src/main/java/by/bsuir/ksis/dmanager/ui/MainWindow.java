@@ -46,6 +46,14 @@ public class MainWindow extends JFrame {
 
         controlPanel.addOnStopButtonClick(e -> stopDownloads(downloadsPanel.getSelectedDownloads()));
 
+        controlPanel.addOnEditButtonClick(e -> {
+            Download download = downloadsPanel.getSelectedDownload();
+            if (download != null) {
+                this.newDownloadDialog = new DownloadDialog(this, download, this::updateDownload );
+                openWindow(this.newDownloadDialog);
+            }
+        });
+
         controlPanel.addOnDeleteButtonClick(e -> deleteDownloads(downloadsPanel.getSelectedDownloads()));
 
         viewModel.subscribeOnDownloadsListChange(downloads -> downloadsPanel.showDownloads(downloads));
@@ -84,6 +92,21 @@ public class MainWindow extends JFrame {
             try {
                 Result result = service.stopDownloads(downloads);
                 if (!result.isSuccess()) {
+                    showError(result.getMessage());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void updateDownload(final Download download) {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                Result result = service.updateDownload(download);
+                if (result.isSuccess()) {
+                    this.newDownloadDialog.dispose();
+                } else {
                     showError(result.getMessage());
                 }
             } catch (Exception e) {

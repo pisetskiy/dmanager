@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +77,7 @@ public class DownloadsExecutor {
         List<File> files = fileDAO.getForFilesExecution(download.getId());
         for (File file : files) {
             file.setStatus(Status.END);
+            file.setMessage(null);
             java.io.File localFile = new java.io.File(folder, file.getName());
             
             boolean hasLocalFile = false;
@@ -104,7 +103,7 @@ public class DownloadsExecutor {
             if (retrieved && !rename(file.getLink(), localFile)) {
                 error(file, "Не удалось перименовать файл");
             }
-            
+
             fileDAO.update(file);
         }
     }
@@ -232,60 +231,6 @@ public class DownloadsExecutor {
         String file = link.substring(index + 1);
         java.io.File result = new java.io.File(localFile.getParentFile(), file);
         return localFile.renameTo(result);
-    }
-
-    private Download error(Download download, String error) {
-        download.setStatus(Status.ERROR);
-        download.setMessage(error);
-
-        return download;
-    }
-
-    private Result<ConnectionParams> getConnectionParams(String link) {
-        ConnectionParams params = new ConnectionParams();
-
-        int firstSeparatorInd = link.indexOf("/");
-        firstSeparatorInd = firstSeparatorInd < 0 ? 0 : firstSeparatorInd;
-        int lastSeparatorInd = link.lastIndexOf("/");
-        lastSeparatorInd = lastSeparatorInd < 0 ? 0 : lastSeparatorInd;
-        String address = link.substring(0, firstSeparatorInd);
-        if (address.trim().isEmpty()) {
-            return Result.fail("Не удалось определить адрес сервера");
-        }
-
-        String portStr = FTPClient.DEFAULT_PORT + "";
-        int portSeparatorIndex = address.lastIndexOf(":");
-        if (portSeparatorIndex > 0) {
-            portStr = address.substring(portSeparatorIndex);
-            address = address.substring(0, portSeparatorIndex);
-        }
-
-        try {
-            params.setAddress(InetAddress.getByName(address));
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-
-            return Result.fail("Неверный адрес серевера");
-        }
-
-        try {
-            params.setPort(Integer.parseInt(portStr));
-        } catch (NumberFormatException e) {
-            return Result.fail("Неверный порт сервера");
-        }
-
-        params.setWorkingDirectory(link.substring(firstSeparatorInd, lastSeparatorInd));
-        if (firstSeparatorInd != lastSeparatorInd &&
-            (params.getWorkingDirectory() == null || params.getWorkingDirectory().trim().isEmpty())) {
-            return Result.fail("Неверно задан путь к файлу на сервере");
-        }
-
-        params.setFileName(link.substring(lastSeparatorInd));
-        if (params.getFileName() == null || params.getFileName().trim().isEmpty()) {
-            return Result.fail("Не указано имя файла на сервере");
-        }
-
-        return new Result<>(params, true, "");
     }
 
     private void error(File file, String error) {

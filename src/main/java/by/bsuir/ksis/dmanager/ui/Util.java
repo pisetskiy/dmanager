@@ -4,7 +4,6 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -32,7 +31,7 @@ public class Util {
                 Image image = ImageIO.read(resource);
                 image = image.getScaledInstance(16, 16, Image.SCALE_DEFAULT);
                 return new ImageIcon(image);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 // should never happen
             }
@@ -46,7 +45,15 @@ public class Util {
     }
     
     static String directoryName(File directory) {
-        return directory != null ? directory.getName() : "";
+        String name = "";
+        if (directory != null) {
+            name = directory.getName();
+            if (name.isEmpty()) {
+                name = directory.getAbsolutePath();
+            }
+        }
+
+        return name;
     }
     
     static void showError(String error) {

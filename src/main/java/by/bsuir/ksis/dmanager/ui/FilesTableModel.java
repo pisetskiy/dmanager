@@ -6,6 +6,7 @@ import lombok.Getter;
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -23,6 +24,11 @@ public class FilesTableModel extends AbstractTableModel {
 
     public void addFile(File file) {
         files.add(file);
+        fireTableDataChanged();
+    }
+
+    public void addFiles(List<File> files) {
+        this.files.addAll(files);
         fireTableDataChanged();
     }
 

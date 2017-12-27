@@ -28,6 +28,10 @@ class DownloadsPanel extends JPanel {
         downloadsTableModel.fireTableDataChanged();
     }
 
+    public Download getSelectedDownload() {
+        return downloadsTableModel.getDownloadByRow(downloadsTable.getSelectedRow());
+    }
+
     public List<Download> getSelectedDownloads() {
         int[] rows = downloadsTable.getSelectedRows();
         return Arrays.stream(rows)

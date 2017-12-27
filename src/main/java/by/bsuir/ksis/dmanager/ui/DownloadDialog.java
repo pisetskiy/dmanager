@@ -7,6 +7,7 @@ import by.bsuir.ksis.dmanager.domain.Priority;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -26,11 +27,26 @@ class DownloadDialog extends JDialog {
     private JButton addFileButton = new JButton("Добавить");
     private JButton deleteFilesButton = new JButton("Удалить");
     private JButton submitButton = new JButton("Сохранить");
-    
+
+    private Download download;
     private Consumer<Download> onSubmit;
 
     DownloadDialog(Window owner, Consumer<Download> onSubmit) {
+        this(
+            owner,
+            Download.builder()
+                .name(getRandomString(8))
+                .destination(System.getProperty("user.home"))
+                .priority(Priority.NORMAL)
+                .files(new ArrayList<>())
+                .build(),
+            onSubmit
+        );
+    }
+
+    DownloadDialog(Window owner, Download download, Consumer<Download> onSubmit) {
         super(owner, "Новая загрузка", ModalityType.DOCUMENT_MODAL);
+        this.download = download;
         contentPane = new JPanel(new GridBagLayout());
         createMainBlock();
         createSubmitButton();
@@ -42,15 +58,15 @@ class DownloadDialog extends JDialog {
         setLocationRelativeTo(owner);
 
         this.onSubmit = onSubmit;
+
     }
     
     private Download getDownload() {
-        return Download.builder()
-            .name(nameField.getText())
-            .destination(destination.getAbsolutePath())
-            .priority(priorityBox.getItemAt(priorityBox.getSelectedIndex()))
-            .files(filesTableModel.getFiles())
-            .build();
+        download.setName(nameField.getText());
+        download.setDestination(destination.getAbsolutePath());
+        download.setPriority(priorityBox.getItemAt(priorityBox.getSelectedIndex()));
+        download.setFiles(filesTableModel.getFiles());
+        return download;
     }
     
     private boolean validateDownload(Download download) {
@@ -201,10 +217,11 @@ class DownloadDialog extends JDialog {
     }
     
     private void setFieldsState() {
-        destinationChooser.setSelectedFile(new java.io.File(System.getProperty("user.home")));
+        destinationChooser.setSelectedFile(new java.io.File(download.getDestination()));
         destinationChooser.approveSelection();
-        priorityBox.setSelectedItem(Priority.NORMAL);
-        nameField.setText(getRandomString(8));
+        priorityBox.setSelectedItem(download.getPriority());
+        nameField.setText(download.getName());
+        filesTableModel.addFiles(download.getFiles());
     }
 
     private GridBagConstraints constraintsWithPadding(boolean label) {

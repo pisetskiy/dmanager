@@ -12,6 +12,7 @@ class ControlPanel extends JPanel {
     private JButton addDownloadButton = imageButton(loadImage("icons/add.png"), "Добавить");
     private JButton startDownloadButton = imageButton(loadImage("icons/start.png"), "Запустить");
     private JButton stopDownloadButton = imageButton(loadImage("icons/stop.png"), "Остановить");
+    private JButton editDownloadButton = imageButton(loadImage("icons/edit.png"), "Изменить");
     private JButton deleteDownloadButton = imageButton(loadImage("icons/delete.png"), "Удалить");
 
     ControlPanel() {
@@ -20,6 +21,7 @@ class ControlPanel extends JPanel {
         add(addDownloadButton);
         add(startDownloadButton);
         add(stopDownloadButton);
+        add(editDownloadButton);
         add(deleteDownloadButton);
     }
 
@@ -38,6 +40,12 @@ class ControlPanel extends JPanel {
     void addOnStopButtonClick(ActionListener listener) {
         if (listener != null) {
             stopDownloadButton.addActionListener(listener);
+        }
+    }
+
+    void addOnEditButtonClick(ActionListener listener) {
+        if (listener != null) {
+            editDownloadButton.addActionListener(listener);
         }
     }
 

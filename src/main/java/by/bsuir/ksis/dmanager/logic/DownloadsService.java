@@ -40,7 +40,7 @@ public class DownloadsService {
 
     public Result create(final Download download) {
 
-        Result validationResult = validateDownload(download);
+        Result validationResult = validateDownload(download, true);
         if (!validationResult.isSuccess()) {
             return validationResult;
         }
@@ -88,6 +88,29 @@ public class DownloadsService {
         return Result.success();
     }
 
+    public Result updateDownload(Download download) {
+        Result validationResult = validateDownload(download, false);
+        if (!validationResult.isSuccess()) {
+            return validationResult;
+        }
+
+        download.setStatus(Status.READY);
+        downloadDAO.update(download);
+        download.getFiles().stream()
+            .filter(f -> f.getDownloadId() != null)
+            .forEach(fileDAO::update);
+        download.getFiles().stream()
+            .filter(f -> f.getDownloadId() == null)
+            .peek(f -> f.setDownloadId(download.getId()))
+            .peek(f -> f.setStatus(Status.READY))
+            .peek(f -> f.setName(getRandomString(10)))
+            .forEach(fileDAO::create);
+
+        downloadsViewModel.emitDownloadsListChange();
+
+        return Result.success();
+    }
+
     public Result deleteDownloads(List<Download> downloads) {
         long deletedCount = downloads.stream()
             .peek(d -> executor.stopDownloadExecution(d.getId()))
@@ -102,9 +125,11 @@ public class DownloadsService {
         return Result.success();
     }
 
-    private Result validateDownload(Download download) {
+    private Result validateDownload(Download download, boolean nameUniques) {
         if (download.getName() == null) return Result.fail("Имя загрузки не задано");
-        if (!checkDownloadNameUnique(download)) return Result.fail("Загрузка с такими менем уже существует");
+        if (nameUniques) {
+            if (!checkDownloadNameUnique(download)) return Result.fail("Загрузка с такими менем уже существует");
+        }
         if (download.getDestination() == null || download.getDestination().isEmpty()) return Result.fail("Не задана пака для сохранения загрузки");
         java.io.File destination = new java.io.File(download.getDestination());
         if (!destination.exists()) return Result.fail("Выбранная папка для сохранения не существует");
